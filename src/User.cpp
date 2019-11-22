@@ -8,9 +8,6 @@ User::User(const std::string &name) : name(name){
     history = std::vector<Watchable*>();
 }
 
-
-
-
 std::string User::getName() const {
     return name;
 }
