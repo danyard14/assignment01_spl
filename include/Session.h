@@ -4,7 +4,10 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
-#include "Action.h"
+#include "../include/Action.h"
+
+#include "../include/json.hpp"
+#include "fstream"
 
 class User;
 class Watchable;
@@ -12,7 +15,7 @@ class Watchable;
 class Session{
 public:
     Session(const std::string &configFilePath);
-    ~Session();
+    //~Session();
     void start();
 private:
     std::vector<Watchable*> content;
