@@ -14,6 +14,7 @@ enum ActionStatus{
 class BaseAction{
 public:
     BaseAction();
+    BaseAction(const BaseAction &other);
     ActionStatus getStatus() const;
     virtual void act(Session& sess)=0;
     virtual std::string toString() const=0;
@@ -28,8 +29,13 @@ private:
 
 class CreateUser  : public BaseAction {
 public:
+    CreateUser (std::string userName, std::string reccomendAlgo);
     virtual void act(Session& sess);
     virtual std::string toString() const;
+
+private:
+    std::string userName;
+    std::string reccomendAlgo;
 };
 
 class ChangeActiveUser : public BaseAction {

@@ -4,12 +4,17 @@
 #include "../include/Action.h"
 #include "../include/Session.h"
 
-BaseAction :: BaseAction() {
+// constructor
+BaseAction::BaseAction() {
     status = PENDING;
 }
 
+CreateUser::CreateUser (std::string userName, std::string reccomendAlgo) : userName(userName), reccomendAlgo(reccomendAlgo), BaseAction() {
+
+}
+
 void CreateUser :: act(Session &sess) {
-    std::string msg = createUserAct(sess);
+    sess
 
 
     /*

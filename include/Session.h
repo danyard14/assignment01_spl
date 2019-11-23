@@ -15,8 +15,10 @@ class Watchable;
 class Session{
 public:
     Session(const std::string &configFilePath);
-    //~Session();
+    Session(const Session &other);
+    ~Session();
     void start();
+
 private:
     std::vector<Watchable*> content;
     std::vector<BaseAction*> actionsLog;

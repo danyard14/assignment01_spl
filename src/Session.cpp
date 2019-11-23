@@ -5,6 +5,7 @@
 #include "../include/Watchable.h"
 #include "../include/User.h"
 
+// constractor
 Session::Session(const std::string &configFilePath) {
 
     // read a JSON file
@@ -42,7 +43,7 @@ Session::Session(const std::string &configFilePath) {
         for (int season = 1; season <= numOfSeasons; season++) {
             int numOfEpisodes = element.value()["seasons"][season-1];
             for (int episode = 1; episode <= numOfEpisodes ; episode++) {
-                Episode *newEpisode = new Episode(id, element.value()["name"], element.value()["episode_length"],
+                Episode* newEpisode = new Episode(id, element.value()["name"], element.value()["episode_length"],
                                                   season, episode, tags);
                 content.push_back(newEpisode);
                 id++;
@@ -56,6 +57,25 @@ Session::Session(const std::string &configFilePath) {
     }
     //actionsLog and userMap are initialized automatically as empty.
     //TODO:figure out where we get current user from
+}
+Session::Session(const Session &other) {
+   //TODO: copy constructor
+    }
+// destractor
+Session::~Session() {
+    actionsLog.clear();
+
+    activeUser = nullptr;
+
+    for (auto content : content) {
+        delete content;
+    }
+
+    for (auto user : userMap) {
+        delete user.second;
+    }
+
+    userMap.clear();
 }
 
 void Session::start() {
@@ -73,6 +93,8 @@ void Session::start() {
             std::string reccomendAlgo = afterFirstWord.substr(afterFirstWord.find(' ') + 1);
 
             //TODO: create user
+            CreateUser* x = new CreateUser(userName, reccomendAlgo);
+            x->act(*this);
 //            actionsLog.push_back(createUserAct);
 //            if (userMap.find(userName) != userMap.end()) {
 //                User* user;
@@ -123,4 +145,8 @@ void Session::start() {
             //TODO: print actions
         }
     }
+}
+
+std::vector<Watchable*>& Session ::GetContent() {
+    return content;
 }
