@@ -39,6 +39,7 @@ Session::Session(const std::string &configFilePath) {
         for (auto &subElement : element.value()["tags"].items()) {
             tags.push_back(subElement.value());
         }
+
         int numOfSeasons = element.value()["seasons"].size();
         for (int season = 1; season <= numOfSeasons; season++) {
             int numOfEpisodes = element.value()["seasons"][season-1];
@@ -83,19 +84,20 @@ void Session::start() {
     std::string command;
     std::cout << "insert a command";
     std::getline(std::cin, command);
-
     while (command != "exit") {
 
         std::string commandType = command.substr(0, command.find_first_of(' '));
+
+
         if (commandType == "createuser") {
             std::string afterFirstWord = command.substr(command.find(' ') + 1);
             std::string userName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
             std::string reccomendAlgo = afterFirstWord.substr(afterFirstWord.find(' ') + 1);
 
             //TODO: create user
-            CreateUser* x = new CreateUser(userName, reccomendAlgo);
+            CreateUser *x = new CreateUser(userName, reccomendAlgo);
             x->act(*this);
-//            actionsLog.push_back(createUserAct);
+/*            actionsLog.push_back(createUserAct);
 //            if (userMap.find(userName) != userMap.end()) {
 //                User* user;
 //                if (reccomendAlgo == "len")
@@ -109,44 +111,61 @@ void Session::start() {
 //            }
 //            else
 //                //return "error..."
-        }
-        else if (commandType == "changeuser") {
-            std::string afterFirstWord = command.substr(command.find(' ') + 1);
-            std::string userName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
+        }*/
+            else if (commandType == "changeuser") {
+                std::string afterFirstWord = command.substr(command.find(' ') + 1);
+                std::string userName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
 
-            //TODO: change user
-        }
-        else if (commandType == "deleteuser") {
-            std::string afterFirstWord = command.substr(command.find(' ') + 1);
-            std::string userName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
+                //TODO: change user
+            } else if (commandType == "deleteuser") {
+                std::string afterFirstWord = command.substr(command.find(' ') + 1);
+                std::string userName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
 
-            //TODO: delete user
-        }
-        else if (commandType == "dupuser") {
-            std::string afterFirstWord = command.substr(command.find(' ') + 1);
-            std::string originUserName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
-            std::string newUserName = afterFirstWord.substr(afterFirstWord.find(' ') + 1);
+                //TODO: delete user
+            } else if (commandType == "dupuser") {
+                std::string afterFirstWord = command.substr(command.find(' ') + 1);
+                std::string originUserName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
+                std::string newUserName = afterFirstWord.substr(afterFirstWord.find(' ') + 1);
 
-            //TODO: duplicate user
-        }
-        else if (commandType == "content") {
-            //TODO: print content
-        }
-        else if (commandType == "watchlist") {
-            //TODO: print watch list history
-        }
-        else if (commandType == "watch") {
-            std::string afterFirstWord = command.substr(command.find(' ') + 1);
-            std::string contentId = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
+                //TODO: duplicate user
+            } else if (commandType == "content") {
+                //TODO: print content
+            } else if (commandType == "watchlist") {
+                //TODO: print watch list history
+            } else if (commandType == "watch") {
+                std::string afterFirstWord = command.substr(command.find(' ') + 1);
+                std::string contentId = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
 
-            //TODO: watch content
+                //TODO: watch content
+            } else if (commandType == "deleteuser") {
+                //TODO: print actions
+            }
         }
-        else if (commandType == "deleteuser") {
-            //TODO: print actions
+    }
+}
+void Session::makeNewUser(CreateUser &action) {
+    // check if user exist already
+    if (userMap.find(action.getName()) != userMap.end()) {
+        //user exist
+        //TODO: update error message
+    } else {
+        std::string typeOfUser = action.getRecAlgo();
+        std::string userName = action.getName();
+
+        if (typeOfUser == "len") {
+            LengthRecommenderUser *user = new LengthRecommenderUser(userName);
+            userMap.insert({userName, user});
+        } else if (typeOfUser == "gen") {
+            RerunRecommenderUser *user = new RerunRecommenderUser(userName);
+            userMap.insert({userName, user});
+
+        } else if (typeOfUser == "rer") {
+            GenreRecommenderUser *user = new GenreRecommenderUser(userName);
+            userMap.insert({userName, user});
         }
     }
 }
 
-std::vector<Watchable*>& Session ::GetContent() {
+std::vector<Watchable *> &Session::GetContent() {
     return content;
 }

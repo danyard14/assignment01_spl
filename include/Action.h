@@ -32,6 +32,8 @@ public:
     CreateUser (std::string userName, std::string reccomendAlgo);
     virtual void act(Session& sess);
     virtual std::string toString() const;
+    std::string getName() const;
+    std::string getRecAlgo() const;
 
 private:
     std::string userName;

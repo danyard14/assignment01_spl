@@ -4,18 +4,25 @@
 #include "../include/Action.h"
 #include "../include/Session.h"
 
-// constructor
+// constructor general
 BaseAction::BaseAction() {
     status = PENDING;
 }
 
+// constructor of createUser
 CreateUser::CreateUser (std::string userName, std::string reccomendAlgo) : userName(userName), reccomendAlgo(reccomendAlgo), BaseAction() {
-
 }
 
-void CreateUser :: act(Session &sess) {
-    sess
+std::string CreateUser::getName() const { return userName;}
+std::string CreateUser::getRecAlgo() const { return reccomendAlgo;}
 
+
+
+
+
+// function "act" of create user
+void CreateUser :: act(Session &sess) {
+    sess.makeNewUser(*this);
 
     /*
                  if (userMap.find(userName) != userMap.end()) {

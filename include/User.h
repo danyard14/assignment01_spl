@@ -33,6 +33,7 @@ public:
     LengthRecommenderUser(const std::string& name);
     LengthRecommenderUser(const LengthRecommenderUser &other);
     virtual Watchable* getRecommendation(Session& s);
+
 private:
 };
 

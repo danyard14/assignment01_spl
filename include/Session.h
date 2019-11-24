@@ -19,6 +19,8 @@ public:
     ~Session();
     void start();
 
+    void makeNewUser(CreateUser &action);
+
 private:
     std::vector<Watchable*> content;
     std::vector<BaseAction*> actionsLog;
