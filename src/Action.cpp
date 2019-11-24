@@ -26,7 +26,7 @@ std::string BaseAction::getErrorMsg() const {
     return errorMsg;
 }
 
-CreateUser::CreateUser (std::string userName, std::string reccomendAlgo) : userName(userName), reccomendAlgo(reccomendAlgo), BaseAction() {
+CreateUser::CreateUser (std::string userName, std::string reccomendAlgo) : userName(userName), reccomendAlgo(reccomendAlgo), BaseAction() {}
 
 std::string CreateUser::getName() const { return userName;}
 std::string CreateUser::getRecAlgo() const { return reccomendAlgo;}
