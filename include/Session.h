@@ -20,8 +20,8 @@ public:
     void start();
     void addAction(BaseAction* action);
 
-    void deleteUser(DeleteUser& user);
-    void changeActiveUser(ChangeActiveUser& user);
+    void deleteUser(DeleteUser& action);
+    void changeActiveUser(ChangeActiveUser& action);
 
 private:
     std::vector<Watchable*> content;

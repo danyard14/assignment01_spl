@@ -158,25 +158,25 @@ void Session::addAction(BaseAction* action) {
     actionsLog.push_back(action);
 }
 
-void Session::deleteUser(DeleteUser& user) {
-    if (userMap.find(user.getUserName()) != userMap.end()) {
-        userMap.erase(user.getUserName());
-        user.setStatus(COMPLETED);
+void Session::deleteUser(DeleteUser& action) {
+    if (userMap.find(action.getUserName()) != userMap.end()) {
+        userMap.erase(action.getUserName());
+        action.setStatus(COMPLETED);
     }
     else {
-        user.setStatus(ERROR);
-        user.setErrorMsg("User Doesn't Exist");
+        action.setStatus(ERROR);
+        action.setErrorMsg("User Doesn't Exist");
     }
 }
 
-void Session::changeActiveUser(ChangeActiveUser &user) {
-    std::string userName = user.getUserName();
+void Session::changeActiveUser(ChangeActiveUser &action) {
+    std::string userName = action.getUserName();
     if (userMap.find(userName) == userMap.end()) {
         activeUser = userMap.at(userName);
-        user.setStatus(COMPLETED);
+        action.setStatus(COMPLETED);
     }
     else {
-        user.setStatus(ERROR);
-        user.setErrorMsg("User Doesn't Exist");
+        action.setStatus(ERROR);
+        action.setErrorMsg("User Doesn't Exist");
     }
 }
