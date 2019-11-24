@@ -47,6 +47,7 @@ std::string Movie::toString() const {
     std::string tags = this->printTags();
 
     std::string ret = movieName + " " + movieLength + " " + tags;
+
     return ret;
 }
 
@@ -58,7 +59,7 @@ std::string Episode::toString() const {
     std::string numOfEpisode = std::to_string(episode);
     std::string episodeLength = std::to_string(this->getLength());
     std::string tags = this->printTags();
-    (Watchable)this.
+
     if (season < 10)
         numOfSeason = "0" + numOfSeason;
     if (episode < 10)

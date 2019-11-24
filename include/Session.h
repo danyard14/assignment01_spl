@@ -19,9 +19,9 @@ public:
     ~Session();
     void start();
 
-    void createUser(CreateUser &action);
-    void deleteUser(DeleteUser& action);
-    void changeActiveUser(ChangeActiveUser& action);
+    std::string createUser(CreateUser &action);
+    std::string deleteUser(DeleteUser& action);
+    std::string changeActiveUser(ChangeActiveUser& action);
 
     void printContentList(PrintContentList& action);
 

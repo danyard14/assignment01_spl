@@ -33,7 +33,13 @@ std::string CreateUser::getRecAlgo() const { return reccomendAlgo;}
 
 // function "act" of create user
 void CreateUser :: act(Session &sess) {
-    sess.createUser(*this);
+    std::string ret = sess.createUser(*this);
+    if (ret == "")
+        complete();
+    else {
+        setStatus(ERROR);
+        setErrorMsg(ret);
+    }
 }
 
 DeleteUser::DeleteUser (std::string userName) : userName(userName), BaseAction() {
@@ -43,7 +49,12 @@ std::string DeleteUser::getUserName() const {
     return userName;
 }
 void DeleteUser :: act(Session &sess) {
-    sess.deleteUser(*this);
+    std::string ret = sess.deleteUser(*this);
+    if (ret == "")
+        complete();
+    else {
+        error(ret);
+    }
 }
 
 ChangeActiveUser::ChangeActiveUser (std::string userName) : userName(userName), BaseAction() {
@@ -53,32 +64,125 @@ std::string ChangeActiveUser::getUserName() const {
     return userName;
 }
 void ChangeActiveUser::act(Session &sess) {
-    sess.changeActiveUser(*this);
+    std::string ret = sess.changeActiveUser(*this);
+    if (ret == "")
+        complete();
+    else {
+        error(ret);
+    }
 }
 
 PrintActionsLog::PrintActionsLog():BaseAction(){
 }
 
 std::string PrintActionsLog::toString() const {
-    if(this->getStatus()==ERROR){
-        return "PrintActionLog "+ this->getStatus() + this->getErrorMsg();
+    std::string ret = "PrintActionLog ";
+    ActionStatus status = getStatus();
+    if(status == COMPLETED) {
+        ret += "COMPLETED";
+        return ret;
     }
-    else{
-        return "PrintActionLog " + this->getStatus();
+    else if (status == ERROR) {
+        ret += "ERROR: ";
+        ret += getErrorMsg();
+        return ret;
+    }
+    else {
+        ret += "PENDING";
+        return ret;
     }
 }
 
 void PrintActionsLog::act(Session &sess) {
     sess.printActionLog();
+    complete();
 }
-
-
-
-
 
 PrintContentList::PrintContentList() : BaseAction() {
 
 }
 void PrintContentList::act(Session &sess) {
     sess.printContentList(*this);
+    complete();
+}
+
+void BaseAction::complete() {
+    status = COMPLETED;
+}
+
+void  BaseAction::error(const std::string &msg) {
+    status = ERROR;
+    errorMsg = msg;
+}
+
+std::string CreateUser::toString() const {
+    std::string ret = "CreateUser ";
+    ActionStatus status = getStatus();
+    if(status == COMPLETED) {
+        ret += "COMPLETED";
+        return ret;
+    }
+    else if (status == ERROR) {
+        ret += "ERROR: ";
+        ret += getErrorMsg();
+        return ret;
+    }
+    else {
+        ret += "PENDING";
+        return ret;
+    }
+}
+
+std::string ChangeActiveUser::toString() const {
+    std::string ret = "ChangeActiveUser ";
+    ActionStatus status = getStatus();
+    if(status == COMPLETED) {
+        ret += "COMPLETED";
+        return ret;
+    }
+    else if (status == ERROR) {
+        ret += "ERROR: ";
+        ret += getErrorMsg();
+        return ret;
+    }
+    else {
+        ret += "PENDING";
+        return ret;
+    }
+}
+
+std::string DeleteUser::toString() const {
+    std::string ret = "DeleteUser ";
+    ActionStatus status = getStatus();
+    if(status == COMPLETED) {
+        ret += "COMPLETED";
+        return ret;
+    }
+    else if (status == ERROR) {
+        ret += "ERROR: ";
+        ret += getErrorMsg();
+        return ret;
+    }
+    else {
+        ret += "PENDING";
+        return ret;
+    }
+}
+
+std::string PrintContentList::toString() const {
+    std::string ret = "PrintContentList ";
+    ActionStatus status = getStatus();
+    if(status == COMPLETED) {
+        ret += "COMPLETED";
+        return ret;
+    }
+    else if (status == ERROR) {
+        ret += "ERROR: ";
+        ret += getErrorMsg();
+        return ret;
+    }
+    else {
+        ret += "PENDING";
+        return ret;
+    }
 }
