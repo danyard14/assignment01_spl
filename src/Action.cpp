@@ -4,12 +4,32 @@
 #include "../include/Action.h"
 #include "../include/Session.h"
 
-// constructor general
+// constructors
 BaseAction::BaseAction() {
     status = PENDING;
 }
+CreateUser::CreateUser (std::string userName, std::string reccomendAlgo) : userName(userName), reccomendAlgo(reccomendAlgo), BaseAction() {}
+ChangeActiveUser::ChangeActiveUser (std::string userName) : userName(userName), BaseAction() {}
+DeleteUser::DeleteUser (std::string userName) : userName(userName), BaseAction() {}
+PrintContentList::PrintContentList() : BaseAction() {}
+PrintWatchHistory::PrintWatchHistory () : BaseAction() {}
+PrintActionsLog::PrintActionsLog():BaseAction(){}
 
-// constructor of createUser
+// base action methods
+void BaseAction::complete() {
+    status = COMPLETED;
+}
+void  BaseAction::error(const std::string &msg) {
+    status = ERROR;
+    errorMsg = msg;
+}
+// getters
+ActionStatus BaseAction::getStatus() const {
+    return status;
+}
+std::string BaseAction::getErrorMsg() const {
+    return errorMsg;
+}
 // setters
 void BaseAction::setStatus(ActionStatus stats) {
     status = stats;
@@ -18,20 +38,7 @@ void BaseAction::setErrorMsg(std::string msg) {
     errorMsg = msg;
 }
 
-// getters
-ActionStatus BaseAction::getStatus() const {
-    return status;
-}
-std::string BaseAction::getErrorMsg() const {
-    return errorMsg;
-}
-
-CreateUser::CreateUser (std::string userName, std::string reccomendAlgo) : userName(userName), reccomendAlgo(reccomendAlgo), BaseAction() {}
-
-std::string CreateUser::getName() const { return userName;}
-std::string CreateUser::getRecAlgo() const { return reccomendAlgo;}
-
-// function "act" of create user
+// create user methods
 void CreateUser :: act(Session &sess) {
     std::string ret = sess.createUser(*this);
     if (ret == "")
@@ -41,80 +48,6 @@ void CreateUser :: act(Session &sess) {
         setErrorMsg(ret);
     }
 }
-
-DeleteUser::DeleteUser (std::string userName) : userName(userName), BaseAction() {
-
-}
-std::string DeleteUser::getUserName() const {
-    return userName;
-}
-void DeleteUser :: act(Session &sess) {
-    std::string ret = sess.deleteUser(*this);
-    if (ret == "")
-        complete();
-    else {
-        error(ret);
-    }
-}
-
-ChangeActiveUser::ChangeActiveUser (std::string userName) : userName(userName), BaseAction() {
-
-}
-std::string ChangeActiveUser::getUserName() const {
-    return userName;
-}
-void ChangeActiveUser::act(Session &sess) {
-    std::string ret = sess.changeActiveUser(*this);
-    if (ret == "")
-        complete();
-    else {
-        error(ret);
-    }
-}
-
-PrintActionsLog::PrintActionsLog():BaseAction(){
-}
-
-std::string PrintActionsLog::toString() const {
-    std::string ret = "PrintActionLog ";
-    ActionStatus status = getStatus();
-    if(status == COMPLETED) {
-        ret += "COMPLETED";
-        return ret;
-    }
-    else if (status == ERROR) {
-        ret += "ERROR: ";
-        ret += getErrorMsg();
-        return ret;
-    }
-    else {
-        ret += "PENDING";
-        return ret;
-    }
-}
-
-void PrintActionsLog::act(Session &sess) {
-    sess.printActionLog();
-    complete();
-}
-
-PrintContentList::PrintContentList() : BaseAction() {
-
-}
-void PrintContentList::act(Session &sess) {
-    sess.printContentList(*this);
-    complete();
-}
-
-void BaseAction::complete() {
-    status = COMPLETED;
-}
-
-void  BaseAction::error(const std::string &msg) {
-    status = ERROR;
-    errorMsg = msg;
-}
-
 std::string CreateUser::toString() const {
     std::string ret = "CreateUser ";
     ActionStatus status = getStatus();
@@ -132,7 +65,19 @@ std::string CreateUser::toString() const {
         return ret;
     }
 }
+// getters
+std::string CreateUser::getName() const { return userName; }
+std::string CreateUser::getRecAlgo() const { return reccomendAlgo; }
 
+// change active user methods
+void ChangeActiveUser::act(Session &sess) {
+    std::string ret = sess.changeActiveUser(*this);
+    if (ret == "")
+        complete();
+    else {
+        error(ret);
+    }
+}
 std::string ChangeActiveUser::toString() const {
     std::string ret = "ChangeActiveUser ";
     ActionStatus status = getStatus();
@@ -150,7 +95,18 @@ std::string ChangeActiveUser::toString() const {
         return ret;
     }
 }
+// getters
+std::string ChangeActiveUser::getUserName() const { return userName; }
 
+// delete user methods
+void DeleteUser::act(Session &sess) {
+    std::string ret = sess.deleteUser(*this);
+    if (ret == "")
+        complete();
+    else {
+        error(ret);
+    }
+}
 std::string DeleteUser::toString() const {
     std::string ret = "DeleteUser ";
     ActionStatus status = getStatus();
@@ -168,9 +124,64 @@ std::string DeleteUser::toString() const {
         return ret;
     }
 }
+// getters
+std::string DeleteUser::getUserName() const {
+    return userName;
+}
 
+// print content list methods
+void PrintContentList::act(Session &sess) {
+    sess.printContentList(*this);
+    complete();
+}
 std::string PrintContentList::toString() const {
     std::string ret = "PrintContentList ";
+    ActionStatus status = getStatus();
+    if(status == COMPLETED) {
+        ret += "COMPLETED";
+        return ret;
+    }
+    else if (status == ERROR) {
+        ret += "ERROR: ";
+        ret += getErrorMsg();
+        return ret;
+    }
+    else {
+        ret += "PENDING";
+        return ret;
+    }
+}
+
+// print watch history methods
+void PrintWatchHistory::act (Session& sess) {
+    sess.printWatchHistory();
+    complete();
+}
+std::string PrintWatchHistory::toString() const {
+    std::string ret = "PrintWatchHistory ";
+    ActionStatus status = getStatus();
+    if(status == COMPLETED) {
+        ret += "COMPLETED";
+        return ret;
+    }
+    else if (status == ERROR) {
+        ret += "ERROR: ";
+        ret += getErrorMsg();
+        return ret;
+    }
+    else {
+        ret += "PENDING";
+        return ret;
+    }
+}
+
+// print actions log
+void PrintActionsLog::act(Session &sess) {
+    sess.printActionLog();
+    complete();
+}
+std::string PrintActionsLog::toString() const {
+    std::string ret = "PrintActionLog ";
     ActionStatus status = getStatus();
     if(status == COMPLETED) {
         ret += "COMPLETED";

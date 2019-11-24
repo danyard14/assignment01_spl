@@ -89,8 +89,6 @@ void Session::start() {
     while (command != "exit") {
 
         std::string commandType = command.substr(0, command.find_first_of(' '));
-
-
         if (commandType == "createuser") {
             std::string afterFirstWord = command.substr(command.find(' ') + 1);
             std::string userName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
@@ -99,7 +97,7 @@ void Session::start() {
             CreateUser* action = new CreateUser(userName, reccomendAlgo);
             actionsLog.push_back(action);
             action->act(*this);
-            }
+        }
         else if (commandType == "changeuser") {
                 std::string afterFirstWord = command.substr(command.find(' ') + 1);
                 std::string userName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
@@ -129,7 +127,9 @@ void Session::start() {
             action->act(*this);
         }
         else if (commandType == "watchlist") {
-                //TODO: print watch list history
+            PrintWatchHistory* action = new PrintWatchHistory();
+            actionsLog.push_back(action);
+            action->act(*this);
         }
         else if (commandType == "watch") {
                 std::string afterFirstWord = command.substr(command.find(' ') + 1);
@@ -169,18 +169,6 @@ std::string Session::createUser(CreateUser &action) {
         return "";
     }
 }
-
-std::string Session::deleteUser(DeleteUser &action) {
-    if (userMap.find(action.getUserName()) != userMap.end()) {
-        userMap.erase(action.getUserName());
-        return "";
-    }
-    else {
-        action.setStatus(ERROR);
-        return "User Doesn't Exist";
-    }
-}
-
 std::string Session::changeActiveUser(ChangeActiveUser &action) {
     std::string userName = action.getUserName();
     if (userMap.find(userName) != userMap.end()) {
@@ -191,14 +179,32 @@ std::string Session::changeActiveUser(ChangeActiveUser &action) {
         return "User Doesn't Exist";
     }
 }
-
+std::string Session::deleteUser(DeleteUser &action) {
+    if (userMap.find(action.getUserName()) != userMap.end()) {
+        userMap.erase(action.getUserName());
+        return "";
+    }
+    else {
+        action.setStatus(ERROR);
+        return "User Doesn't Exist";
+    }
+}
+void Session::printContentList(PrintContentList &action) {
+    int i = 1;
+    for (auto &element : content)
+        std::cout << std::to_string(i) + ". " + element->toString() + element->printLengthAndTags() << std::endl;
+    i++;
+}
+void Session::printWatchHistory() {
+    int i = 1;
+    std::cout << "Watch history for " + activeUser->getName() << std::endl;
+    for (auto &content : activeUser->get_history()) {
+        std::cout << std::to_string(i) + ". " + content->toString() << std::endl;
+        i++;
+    }
+}
 void Session::printActionLog(){
     for (int i = actionsLog.size()-2; i > 0; i--) {
         std::cout << (actionsLog.at(i))->toString() << std::endl;
     }
-}
-
-void Session::printContentList(PrintContentList &action) {
-    for (auto &element : content)
-        std::cout << element->toString() << std::endl;
 }

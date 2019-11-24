@@ -24,7 +24,7 @@ public:
     std::string changeActiveUser(ChangeActiveUser& action);
 
     void printContentList(PrintContentList& action);
-
+    void printWatchHistory();
 
     void printActionLog();
 
