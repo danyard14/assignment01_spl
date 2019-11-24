@@ -18,6 +18,10 @@ public:
     ActionStatus getStatus() const;
     virtual void act(Session& sess)=0;
     virtual std::string toString() const=0;
+
+    void setStatus(ActionStatus status);
+    void setErrorMsg(std::string errorMsg);
+
 protected:
     void complete();
     void error(const std::string& errorMsg);
@@ -27,7 +31,7 @@ private:
     ActionStatus status;
 };
 
-class CreateUser  : public BaseAction {
+class CreateUser : public BaseAction {
 public:
     CreateUser (std::string userName, std::string reccomendAlgo);
     virtual void act(Session& sess);
@@ -42,14 +46,24 @@ private:
 
 class ChangeActiveUser : public BaseAction {
 public:
+    ChangeActiveUser (std::string userName);
     virtual void act(Session& sess);
     virtual std::string toString() const;
+
+    std::string getUserName() const;
+private:
+    std::string userName;
 };
 
 class DeleteUser : public BaseAction {
 public:
     virtual void act(Session & sess);
+    DeleteUser(std::string userName);
     virtual std::string toString() const;
+
+    std::string getUserName() const;
+private:
+    std::string userName;
 };
 
 
