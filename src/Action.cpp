@@ -37,8 +37,6 @@ std::string CreateUser::getRecAlgo() const { return reccomendAlgo;}
 
 // function "act" of create user
 void CreateUser :: act(Session &sess) {
-    BaseAction* act = new CreateUser(userName, reccomendAlgo);
-    sess.addAction(act);
     sess.createUser(*this);
 }
 
@@ -49,8 +47,6 @@ std::string DeleteUser::getUserName() const {
     return userName;
 }
 void DeleteUser :: act(Session &sess) {
-    BaseAction* act = new DeleteUser(userName);
-    sess.addAction(act);
     sess.deleteUser(*this);
 }
 
@@ -61,7 +57,5 @@ std::string ChangeActiveUser::getUserName() const {
     return userName;
 }
 void ChangeActiveUser::act(Session &sess) {
-    BaseAction* act = new ChangeActiveUser(userName);
-    sess.addAction(act);
     sess.changeActiveUser(*this);
 }
