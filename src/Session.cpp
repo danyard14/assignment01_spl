@@ -96,49 +96,53 @@ void Session::start() {
             std::string userName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
             std::string reccomendAlgo = afterFirstWord.substr(afterFirstWord.find(' ') + 1);
 
-            //TODO: create user
-            CreateUser *action = new CreateUser(userName, reccomendAlgo);
+            CreateUser* action = new CreateUser(userName, reccomendAlgo);
             actionsLog.push_back(action);
             action->act(*this);
             }
-            else if (commandType == "changeuser") {
+        else if (commandType == "changeuser") {
                 std::string afterFirstWord = command.substr(command.find(' ') + 1);
                 std::string userName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
 
-                //TODO: change user
-            } else if (commandType == "deleteuser") {
+                ChangeActiveUser* action = new ChangeActiveUser(userName);
+                actionsLog.push_back(action);
+                action->act(*this);
+        }
+        else if (commandType == "deleteuser") {
                 std::string afterFirstWord = command.substr(command.find(' ') + 1);
                 std::string userName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
+
+                DeleteUser* action = new DeleteUser(userName);
+                actionsLog.push_back(action);
+                action->act(*this);
 
                 //TODO: delete user
-            } else if (commandType == "dupuser") {
-                std::string afterFirstWord = command.substr(command.find(' ') + 1);
-                std::string originUserName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
-                std::string newUserName = afterFirstWord.substr(afterFirstWord.find(' ') + 1);
-            //TODO: delete user
-
         }
         else if (commandType == "dupuser") {
             std::string afterFirstWord = command.substr(command.find(' ') + 1);
             std::string originUserName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
             std::string newUserName = afterFirstWord.substr(afterFirstWord.find(' ') + 1);
 
-                //TODO: duplicate user
-            } else if (commandType == "content") {
+            //TODO: duplicate user
+        }
+        else if (commandType == "content") {
                 //TODO: print content
-            } else if (commandType == "watchlist") {
+        }
+        else if (commandType == "watchlist") {
                 //TODO: print watch list history
-            } else if (commandType == "watch") {
+        }
+        else if (commandType == "watch") {
                 std::string afterFirstWord = command.substr(command.find(' ') + 1);
                 std::string contentId = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
 
                 //TODO: watch content
-            } else if (commandType == "deleteuser") {
+        }
+        else if (commandType == "deleteuser") {
                 //TODO: print actions
-            }
         }
     }
 }
+
 void Session::createUser(CreateUser &action) {
     // check if user exist already
     if (userMap.find(action.getName()) != userMap.end()) {
@@ -167,10 +171,6 @@ std::vector<Watchable *> &Session::GetContent() {
     return content;
 }
 
-void Session::addAction(BaseAction* action) {
-    actionsLog.push_back(action);
-}
-
 void Session::deleteUser(DeleteUser& action) {
     if (userMap.find(action.getUserName()) != userMap.end()) {
         userMap.erase(action.getUserName());
@@ -184,7 +184,7 @@ void Session::deleteUser(DeleteUser& action) {
 
 void Session::changeActiveUser(ChangeActiveUser& action) {
     std::string userName = action.getUserName();
-    if (userMap.find(userName) == userMap.end()) {
+    if (userMap.find(userName) != userMap.end()) {
         activeUser = userMap.at(userName);
         action.setStatus(COMPLETED);
     }
