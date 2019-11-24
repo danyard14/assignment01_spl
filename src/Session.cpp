@@ -97,23 +97,10 @@ void Session::start() {
             std::string reccomendAlgo = afterFirstWord.substr(afterFirstWord.find(' ') + 1);
 
             //TODO: create user
-            CreateUser *x = new CreateUser(userName, reccomendAlgo);
-            x->act(*this);
-/*            actionsLog.push_back(createUserAct);
-//            if (userMap.find(userName) != userMap.end()) {
-//                User* user;
-//                if (reccomendAlgo == "len")
-//                    user = new LengthRecommenderUser(userName);
-//                else if (reccomendAlgo == "rer")
-//                    user = new RerunRecommenderUser(userName);
-//                else if (reccomendAlgo == "gen")
-//                    user = new GenreRecommenderUser(userName);
-//                userMap.insert({userName, user});
-//                //return "";
-//            }
-//            else
-//                //return "error..."
-        }*/
+            CreateUser *action = new CreateUser(userName, reccomendAlgo);
+            actionsLog.push_back(action);
+            action->act(*this);
+            }
             else if (commandType == "changeuser") {
                 std::string afterFirstWord = command.substr(command.find(' ') + 1);
                 std::string userName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
@@ -155,8 +142,7 @@ void Session::start() {
 void Session::makeNewUser(CreateUser &action) {
     // check if user exist already
     if (userMap.find(action.getName()) != userMap.end()) {
-        //user exist
-        //TODO: update error message
+        action.setErrorMsg("User Already Exist");
     } else {
         std::string typeOfUser = action.getRecAlgo();
         std::string userName = action.getName();
