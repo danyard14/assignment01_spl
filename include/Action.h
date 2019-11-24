@@ -36,7 +36,7 @@ public:
     CreateUser (std::string userName, std::string reccomendAlgo);
     virtual void act(Session& sess);
     virtual std::string toString() const;
-    
+
     std::string getName() const;
     std::string getRecAlgo() const;
 
@@ -58,8 +58,8 @@ private:
 
 class DeleteUser : public BaseAction {
 public:
-    virtual void act(Session & sess);
     DeleteUser(std::string userName);
+    virtual void act(Session & sess);
     virtual std::string toString() const;
 
     std::string getUserName() const;
@@ -76,6 +76,7 @@ public:
 
 class PrintContentList : public BaseAction {
 public:
+    PrintContentList();
     virtual void act (Session& sess);
     virtual std::string toString() const;
 };

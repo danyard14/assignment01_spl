@@ -126,6 +126,9 @@ void Session::start() {
             //TODO: duplicate user
         }
         else if (commandType == "content") {
+            PrintContentList* action = new PrintContentList();
+            actionsLog.push_back(action);
+            action->act(*this);
                 //TODO: print content
         }
         else if (commandType == "watchlist") {
@@ -171,7 +174,7 @@ std::vector<Watchable *> &Session::GetContent() {
     return content;
 }
 
-void Session::deleteUser(DeleteUser& action) {
+void Session::deleteUser(DeleteUser &action) {
     if (userMap.find(action.getUserName()) != userMap.end()) {
         userMap.erase(action.getUserName());
         action.setStatus(COMPLETED);
@@ -182,7 +185,7 @@ void Session::deleteUser(DeleteUser& action) {
     }
 }
 
-void Session::changeActiveUser(ChangeActiveUser& action) {
+void Session::changeActiveUser(ChangeActiveUser &action) {
     std::string userName = action.getUserName();
     if (userMap.find(userName) != userMap.end()) {
         activeUser = userMap.at(userName);
@@ -192,4 +195,10 @@ void Session::changeActiveUser(ChangeActiveUser& action) {
         action.setStatus(ERROR);
         action.setErrorMsg("User Doesn't Exist");
     }
+}
+
+void Session::printContentList(PrintContentList &action) {
+    for (auto &element : content)
+        element->toString();
+    action.setStatus(COMPLETED);
 }

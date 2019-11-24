@@ -19,10 +19,12 @@ public:
     ~Session();
     void start();
 
+    void createUser(CreateUser &action);
     void deleteUser(DeleteUser& action);
     void changeActiveUser(ChangeActiveUser& action);
 
-    void createUser(CreateUser &action);
+    void printContentList(PrintContentList& action);
+
 
 private:
     std::vector<Watchable*> content;

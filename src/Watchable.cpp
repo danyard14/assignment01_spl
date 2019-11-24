@@ -8,6 +8,17 @@
 Watchable::Watchable(long id, int length, const std::vector<std::string> &tags) : id(id), length(length), tags(tags) {
 
 }
+int Watchable::getLength() const {
+    return length;
+}
+std::string Watchable::printTags() const {
+    std::string ret = "[";
+    for (auto &tag : tags) {
+        ret += tag + ", ";
+    }
+    return ret.substr(0, ret.length() - 3) + "]";
+}
+
 Movie::Movie(long id, const std::string &name, int length, const std::vector<std::string> &tags) : name(name), Watchable(id, length, tags) {
 
 }
@@ -31,21 +42,29 @@ Episode::Episode(const Episode &other) : seriesName(other.seriesName), season(ot
 }
 
 std::string Movie::toString() const {
-    return this->name ;
+    std:std::string movieName = this -> name ;
+    std::string movieLength = std::to_string(this->getLength());
+    std::string tags = this->printTags();
+
+    std::string ret = movieName + " " + movieLength + " " + tags;
+    return ret;
 }
 
 
 
 std::string Episode::toString() const {
     std:std::string seriesName = this -> seriesName ;
-    std::string numOfSeason =std::to_string(season);
-    std::string numOfEpisode =std::to_string(episode);
+    std::string numOfSeason = std::to_string(season);
+    std::string numOfEpisode = std::to_string(episode);
+    std::string episodeLength = std::to_string(this->getLength());
+    std::string tags = this->printTags();
+    (Watchable)this.
     if (season < 10)
         numOfSeason = "0" + numOfSeason;
     if (episode < 10)
         numOfEpisode = "0" + numOfEpisode;
 
-    std::string toReturn = seriesName + " S" + numOfSeason + "E" + numOfEpisode;
+    std::string ret = seriesName + " S" + numOfSeason + "E" + numOfEpisode + " " + episodeLength + " minutes " + tags;
 
-    return toReturn ;
+    return ret;
 };

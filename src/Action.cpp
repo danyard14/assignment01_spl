@@ -59,3 +59,13 @@ std::string ChangeActiveUser::getUserName() const {
 void ChangeActiveUser::act(Session &sess) {
     sess.changeActiveUser(*this);
 }
+
+
+
+
+PrintContentList::PrintContentList() : BaseAction() {
+
+}
+void PrintContentList::act(Session &sess) {
+    sess.printContentList(*this);
+}
