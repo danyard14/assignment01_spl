@@ -37,8 +37,6 @@ std::string CreateUser::getRecAlgo() const { return reccomendAlgo;}
 
 // function "act" of create user
 void CreateUser :: act(Session &sess) {
-    BaseAction* act = new CreateUser(userName, reccomendAlgo);
-    sess.addAction(act);
     sess.createUser(*this);
 }
 
