@@ -115,8 +115,6 @@ void Session::start() {
                 DeleteUser* action = new DeleteUser(userName);
                 actionsLog.push_back(action);
                 action->act(*this);
-
-                //TODO: delete user
         }
         else if (commandType == "dupuser") {
             std::string afterFirstWord = command.substr(command.find(' ') + 1);
@@ -139,6 +137,12 @@ void Session::start() {
         }
         else if (commandType == "deleteuser") {
                 //TODO: print actions
+        }
+        else if(commandType == "log"){
+            PrintActionsLog* action = new PrintActionsLog();
+            actionsLog.push_back(action);
+            action->act(*this);
+            action->setStatus(COMPLETED);
         }
     }
 }
@@ -193,3 +197,10 @@ void Session::changeActiveUser(ChangeActiveUser& action) {
         action.setErrorMsg("User Doesn't Exist");
     }
 }
+
+void Session::printActionLog(){
+    for (int i = actionsLog.size()-2; i > 0; i-- ){
+        std::cout << (actionsLog.at(i))->toString() << std::endl;
+    }
+}
+

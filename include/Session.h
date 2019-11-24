@@ -24,6 +24,8 @@ public:
 
     void createUser(CreateUser &action);
 
+    void printActionLog();
+
 private:
     std::vector<Watchable*> content;
     std::vector<BaseAction*> actionsLog;
