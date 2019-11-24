@@ -168,3 +168,15 @@ void Session::deleteUser(DeleteUser& user) {
         user.setErrorMsg("User Doesn't Exist");
     }
 }
+
+void Session::changeActiveUser(ChangeActiveUser &user) {
+    std::string userName = user.getUserName();
+    if (userMap.find(userName) == userMap.end()) {
+        activeUser = userMap.at(userName);
+        user.setStatus(COMPLETED);
+    }
+    else {
+        user.setStatus(ERROR);
+        user.setErrorMsg("User Doesn't Exist");
+    }
+}

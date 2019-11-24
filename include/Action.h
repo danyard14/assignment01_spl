@@ -31,7 +31,7 @@ private:
     ActionStatus status;
 };
 
-class CreateUser  : public BaseAction {
+class CreateUser : public BaseAction {
 public:
     CreateUser (std::string userName, std::string reccomendAlgo);
     virtual void act(Session& sess);
@@ -44,8 +44,13 @@ private:
 
 class ChangeActiveUser : public BaseAction {
 public:
+    ChangeActiveUser (std::string userName);
     virtual void act(Session& sess);
     virtual std::string toString() const;
+
+    std::string getUserName() const;
+private:
+    std::string userName;
 };
 
 class DeleteUser : public BaseAction {

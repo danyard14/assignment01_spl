@@ -61,3 +61,15 @@ void DeleteUser :: act(Session &sess) {
     sess.addAction(act);
     sess.deleteUser(*this);
 }
+
+ChangeActiveUser::ChangeActiveUser (std::string userName) : userName(userName), BaseAction() {
+
+}
+std::string ChangeActiveUser::getUserName() const {
+    return userName;
+}
+void ChangeActiveUser::act(Session &sess) {
+    BaseAction* act = new ChangeActiveUser(userName);
+    sess.addAction(act);
+    sess.changeActiveUser(*this);
+}

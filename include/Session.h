@@ -21,6 +21,7 @@ public:
     void addAction(BaseAction* action);
 
     void deleteUser(DeleteUser& user);
+    void changeActiveUser(ChangeActiveUser& user);
 
 private:
     std::vector<Watchable*> content;
