@@ -31,10 +31,6 @@ CreateUser::CreateUser (std::string userName, std::string reccomendAlgo) : userN
 std::string CreateUser::getName() const { return userName;}
 std::string CreateUser::getRecAlgo() const { return reccomendAlgo;}
 
-
-
-
-
 // function "act" of create user
 void CreateUser :: act(Session &sess) {
     sess.createUser(*this);
@@ -59,6 +55,23 @@ std::string ChangeActiveUser::getUserName() const {
 void ChangeActiveUser::act(Session &sess) {
     sess.changeActiveUser(*this);
 }
+
+PrintActionsLog::PrintActionsLog():BaseAction(){
+}
+
+std::string PrintActionsLog::toString() const {
+    if(this->getStatus()==ERROR){
+        return "PrintActionLog "+ this->getStatus() + this->getErrorMsg();
+    }
+    else{
+        return "PrintActionLog " + this->getStatus();
+    }
+}
+
+void PrintActionsLog::act(Session &sess) {
+    sess.printActionLog();
+}
+
 
 
 
