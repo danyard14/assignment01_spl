@@ -139,9 +139,10 @@ void Session::start() {
         }
     }
 }
-void Session::makeNewUser(CreateUser &action) {
+void Session::createUser(CreateUser &action) {
     // check if user exist already
     if (userMap.find(action.getName()) != userMap.end()) {
+        action.setStatus(ERROR);
         action.setErrorMsg("User Already Exist");
     } else {
         std::string typeOfUser = action.getRecAlgo();
@@ -158,6 +159,7 @@ void Session::makeNewUser(CreateUser &action) {
             GenreRecommenderUser *user = new GenreRecommenderUser(userName);
             userMap.insert({userName, user});
         }
+        action.setStatus(COMPLETED);
     }
 }
 
@@ -180,7 +182,7 @@ void Session::deleteUser(DeleteUser& action) {
     }
 }
 
-void Session::changeActiveUser(ChangeActiveUser &action) {
+void Session::changeActiveUser(ChangeActiveUser& action) {
     std::string userName = action.getUserName();
     if (userMap.find(userName) == userMap.end()) {
         activeUser = userMap.at(userName);

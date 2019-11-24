@@ -37,23 +37,9 @@ std::string CreateUser::getRecAlgo() const { return reccomendAlgo;}
 
 // function "act" of create user
 void CreateUser :: act(Session &sess) {
-    sess.makeNewUser(*this);
-
-    /*
-                 if (userMap.find(userName) != userMap.end()) {
-                User* user;
-                if (reccomendAlgo == "len")
-                    user = new LengthRecommenderUser(userName);
-                else if (reccomendAlgo == "rer")
-                    user = new RerunRecommenderUser(userName);
-                else if (reccomendAlgo == "gen")
-                    user = new GenreRecommenderUser(userName);
-                userMap.insert({userName, user});
-                //update action
-            }
-            else
-                //update action
-     */
+    BaseAction* act = new CreateUser(userName, reccomendAlgo);
+    sess.addAction(act);
+    sess.createUser(*this);
 }
 
 DeleteUser::DeleteUser (std::string userName) : userName(userName), BaseAction() {

@@ -23,7 +23,7 @@ public:
     void deleteUser(DeleteUser& action);
     void changeActiveUser(ChangeActiveUser& action);
 
-    void makeNewUser(CreateUser &action);
+    void createUser(CreateUser &action);
 
 private:
     std::vector<Watchable*> content;
