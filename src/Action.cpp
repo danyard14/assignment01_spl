@@ -9,6 +9,22 @@ BaseAction::BaseAction() {
     status = PENDING;
 }
 
+// setters
+void BaseAction::setStatus(ActionStatus stats) {
+    status = stats;
+}
+void BaseAction::setErrorMsg(std::string msg) {
+    errorMsg = msg;
+}
+
+// getters
+ActionStatus BaseAction::getStatus() const {
+    return status;
+}
+std::string BaseAction::getErrorMsg() const {
+    return errorMsg;
+}
+
 CreateUser::CreateUser (std::string userName, std::string reccomendAlgo) : userName(userName), reccomendAlgo(reccomendAlgo), BaseAction() {
 
 }
@@ -34,4 +50,14 @@ void CreateUser :: act(Session &sess) {
      */
 }
 
+DeleteUser::DeleteUser (std::string userName) : userName(userName), BaseAction() {
 
+}
+std::string DeleteUser::getUserName() const {
+    return userName;
+}
+void DeleteUser :: act(Session &sess) {
+    BaseAction* act = new DeleteUser(userName);
+    sess.addAction(act);
+    sess.deleteUser(*this);
+}

@@ -18,6 +18,9 @@ public:
     Session(const Session &other);
     ~Session();
     void start();
+    void addAction(BaseAction* action);
+
+    void deleteUser(DeleteUser& user);
 
 private:
     std::vector<Watchable*> content;

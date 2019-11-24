@@ -80,6 +80,8 @@ Session::~Session() {
 
 void Session::start() {
     Session("../config1.json");
+    activeUser = new LengthRecommenderUser("default");
+
     std::string command;
     std::cout << "insert a command";
     std::getline(std::cin, command);
@@ -121,6 +123,7 @@ void Session::start() {
             std::string userName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
 
             //TODO: delete user
+
         }
         else if (commandType == "dupuser") {
             std::string afterFirstWord = command.substr(command.find(' ') + 1);
@@ -149,4 +152,19 @@ void Session::start() {
 
 std::vector<Watchable*>& Session ::GetContent() {
     return content;
+}
+
+void Session::addAction(BaseAction* action) {
+    actionsLog.push_back(action);
+}
+
+void Session::deleteUser(DeleteUser& user) {
+    if (userMap.find(user.getUserName()) != userMap.end()) {
+        userMap.erase(user.getUserName());
+        user.setStatus(COMPLETED);
+    }
+    else {
+        user.setStatus(ERROR);
+        user.setErrorMsg("User Doesn't Exist");
+    }
 }
