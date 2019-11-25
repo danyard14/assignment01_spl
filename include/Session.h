@@ -20,14 +20,16 @@ public:
     void start();
 
     std::string createUser(CreateUser &action);
-    std::string deleteUser(DeleteUser& action);
-    std::string changeActiveUser(ChangeActiveUser& action);
-
-    void printContentList(PrintContentList& action);
+    std::string changeActiveUser(ChangeActiveUser &action);
+    std::string deleteUser(DeleteUser &action);
+    std::string duplicateUser(DuplicateUser &action);
+    void printContentList(PrintContentList &action);
     void printWatchHistory();
-
     void printActionLog();
 
+    std::string watchContentById(Watch &action);
+
+    bool is_number(const std::string& s);
 private:
     std::vector<Watchable*> content;
     std::vector<BaseAction*> actionsLog;

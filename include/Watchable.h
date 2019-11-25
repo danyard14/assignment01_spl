@@ -17,7 +17,7 @@ public:
     //virtual Watchable* getNextWatchable(Session&) const = 0;
 
 
-    int getLength() const;
+    int getContentId() const;
     std::string printTags() const;
 private:
     const long id;

@@ -119,6 +119,10 @@ void Session::start() {
             std::string originUserName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
             std::string newUserName = afterFirstWord.substr(afterFirstWord.find(' ') + 1);
 
+            DuplicateUser* action = new DuplicateUser(originUserName, newUserName);
+            actionsLog.push_back(action);
+            action->act(*this);
+
             //TODO: duplicate user
         }
         else if (commandType == "content") {
@@ -132,10 +136,25 @@ void Session::start() {
             action->act(*this);
         }
         else if (commandType == "watch") {
-                std::string afterFirstWord = command.substr(command.find(' ') + 1);
-                std::string contentId = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
+            std::string afterFirstWord = command.substr(command.find(' ') + 1);
+            std::string contentId = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
 
-                //TODO: watch content
+            if (is_number(contentId)) { // check if the content id is ok
+                int id = stoi(contentId);
+                if (id % 1 == 0) {
+                    Watch* action = new Watch(id);
+                    actionsLog.push_back(action);
+                    action->act(*this);
+                }
+                else {
+                    std::cout << "wrong Id" << std::endl;
+                }
+            }
+            else
+            {
+                std::cout << "wrong Id" << std::endl;
+            }
+            //TODO: watch content
         }
         else if(commandType == "log"){
             PrintActionsLog* action = new PrintActionsLog();
@@ -148,12 +167,12 @@ void Session::start() {
 
 std::string Session::createUser(CreateUser &action) {
     // check if user exist already
-    if (userMap.find(action.getName()) != userMap.end()) {
+    if (userMap.find(action.getUserName()) != userMap.end()) {
         return "User Already Exist";
     }
     else {
-        std::string typeOfUser = action.getRecAlgo();
-        std::string userName = action.getName();
+        std::string typeOfUser = action.getUserRecAlgo();
+        std::string userName = action.getUserName();
 
         if (typeOfUser == "len") {
             LengthRecommenderUser *user = new LengthRecommenderUser(userName);
@@ -206,5 +225,48 @@ void Session::printWatchHistory() {
 void Session::printActionLog(){
     for (int i = actionsLog.size()-2; i > 0; i--) {
         std::cout << (actionsLog.at(i))->toString() << std::endl;
+    }
+}
+
+
+
+
+
+
+
+
+
+std::string Session::duplicateUser(DuplicateUser &action) {
+    // check if user exist already
+    if (userMap.find(action.getOriginUserName()) != userMap.end()) {
+    //TODO: Duplicate - maybe copy constructor
+        return "";
+    }
+    else {
+        return "User Doesn't Exist";
+    }
+}
+
+
+
+
+
+// check if string is a number
+bool Session::is_number(const std::string& s)
+{
+    return !s.empty() && std::find_if(s.begin(), s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
+}
+
+
+
+
+std::string Session::watchContentById(Watch &action) {
+    bool found = false;
+    for (auto cont : content) {
+        if (cont->getContentId() == action.getContentId()) {
+            std::cout << "Watching " + cont->toString() << std::endl;
+            //TODO: getRecomendation;
+            std::cout << "We recommend watching " + TODO + ", continue watching? [y/n]" << std::endl;
+        }
     }
 }

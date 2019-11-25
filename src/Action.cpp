@@ -11,6 +11,7 @@ BaseAction::BaseAction() {
 CreateUser::CreateUser (std::string userName, std::string reccomendAlgo) : userName(userName), reccomendAlgo(reccomendAlgo), BaseAction() {}
 ChangeActiveUser::ChangeActiveUser (std::string userName) : userName(userName), BaseAction() {}
 DeleteUser::DeleteUser (std::string userName) : userName(userName), BaseAction() {}
+DuplicateUser::DuplicateUser(std::string originUserName, std::string newUserName) : originUserName(originUserName), newUserName(newUserName) {}
 PrintContentList::PrintContentList() : BaseAction() {}
 PrintWatchHistory::PrintWatchHistory () : BaseAction() {}
 PrintActionsLog::PrintActionsLog():BaseAction(){}
@@ -66,8 +67,8 @@ std::string CreateUser::toString() const {
     }
 }
 // getters
-std::string CreateUser::getName() const { return userName; }
-std::string CreateUser::getRecAlgo() const { return reccomendAlgo; }
+std::string CreateUser::getUserName() const { return userName; }
+std::string CreateUser::getUserRecAlgo() const { return reccomendAlgo; }
 
 // change active user methods
 void ChangeActiveUser::act(Session &sess) {
@@ -127,6 +128,37 @@ std::string DeleteUser::toString() const {
 // getters
 std::string DeleteUser::getUserName() const {
     return userName;
+}
+
+// duplicate user methods
+void DuplicateUser::act(Session &sess) {
+    std::string ret = sess.duplicateUser(*this);
+    if (ret == "")
+        complete();
+    else {
+        error(ret);
+    }
+}
+std::string DuplicateUser::toString() const {
+    std::string ret = "DuplicateUser ";
+    ActionStatus status = getStatus();
+    if(status == COMPLETED) {
+        ret += "COMPLETED";
+        return ret;
+    }
+    else if (status == ERROR) {
+        ret += "ERROR: ";
+        ret += getErrorMsg();
+        return ret;
+    }
+    else {
+        ret += "PENDING";
+        return ret;
+    }
+}
+// getters
+std::string DuplicateUser::getOriginUserName() const {
+    return originUserName;
 }
 
 // print content list methods
@@ -197,3 +229,14 @@ std::string PrintActionsLog::toString() const {
         return ret;
     }
 }
+
+
+
+
+Watch::Watch(int id) : id(id) {}
+void Watch::act(Session &sess) {
+    sess.watchContentById(*this);
+    complete();
+}
+
+int Watch::getContentId() { return id; }

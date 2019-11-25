@@ -37,8 +37,8 @@ public:
     virtual void act(Session& sess);
     virtual std::string toString() const;
 
-    std::string getName() const;
-    std::string getRecAlgo() const;
+    std::string getUserName() const;
+    std::string getUserRecAlgo() const;
 
 private:
     std::string userName;
@@ -70,8 +70,15 @@ private:
 
 class DuplicateUser : public BaseAction {
 public:
+    DuplicateUser(std::string originUserName, std::string newUserName);
     virtual void act(Session & sess);
     virtual std::string toString() const;
+
+    std::string getOriginUserName() const;
+
+private:
+    std::string originUserName;
+    std::string newUserName;
 };
 
 class PrintContentList : public BaseAction {
@@ -91,8 +98,13 @@ public:
 
 class Watch : public BaseAction {
 public:
+    Watch(int id);
     virtual void act(Session& sess);
     virtual std::string toString() const;
+
+    int getContentId();
+private:
+    int id;
 };
 
 
