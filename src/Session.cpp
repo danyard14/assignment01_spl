@@ -4,10 +4,11 @@
 #include "../include/Session.h"
 #include "../include/Watchable.h"
 #include "../include/User.h"
+#include <limits>
 
 // constractor
 Session::Session(const std::string &configFilePath) {
-
+    defaultUserString = "default";
     // read a JSON file
     using json = nlohmann::json;
     std::ifstream i(configFilePath);
@@ -48,14 +49,21 @@ Session::Session(const std::string &configFilePath) {
                                                   season, episode, tags);
                 content.push_back(newEpisode);
                 id++;
+
+                if(season == numOfSeasons & episode == numOfEpisodes){
+                newEpisode->setNextWatchableId(-1);
+                }
+                else{
+                    newEpisode->setNextWatchableId(id+1);
+                }
             }
         }
     }
 
     // print the contents
-    for (auto &content : content) {
+    /*for (auto &content : content) {
         std::cout << content -> toString() << std::endl;
-    }
+    }*/
     //actionsLog and userMap are initialized automatically as empty.
     //TODO:figure out where we get current user from
 }
@@ -81,8 +89,7 @@ Session::~Session() {
 
 void Session::start() {
     Session("../config1.json");
-    activeUser = new LengthRecommenderUser("default");
-
+    activeUser = new LengthRecommenderUser(defaultUserString);
     std::string command;
     std::cout << "insert a command";
     std::getline(std::cin, command);
@@ -118,12 +125,11 @@ void Session::start() {
             std::string afterFirstWord = command.substr(command.find(' ') + 1);
             std::string originUserName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
             std::string newUserName = afterFirstWord.substr(afterFirstWord.find(' ') + 1);
-
-            DuplicateUser* action = new DuplicateUser(originUserName, newUserName);
-            actionsLog.push_back(action);
-            action->act(*this);
-
-            //TODO: duplicate user
+            if(newUserName != "" & originUserName != ""){
+                DuplicateUser* action = new DuplicateUser(originUserName, newUserName);
+                actionsLog.push_back(action);
+                action->act(*this);
+            }
         }
         else if (commandType == "content") {
             PrintContentList* action = new PrintContentList();
@@ -154,7 +160,6 @@ void Session::start() {
             {
                 std::cout << "wrong Id" << std::endl;
             }
-            //TODO: watch content
         }
         else if(commandType == "log"){
             PrintActionsLog* action = new PrintActionsLog();
@@ -162,6 +167,8 @@ void Session::start() {
             action->act(*this);
             action->setStatus(COMPLETED);
         }
+        std::cout << "insert a command";
+        std::getline(std::cin, command);
     }
 }
 
@@ -228,28 +235,29 @@ void Session::printActionLog(){
     }
 }
 
-
-
-
-
-
-
-
-
 std::string Session::duplicateUser(DuplicateUser &action) {
-    // check if user exist already
-    if (userMap.find(action.getOriginUserName()) != userMap.end()) {
-    //TODO: Duplicate - maybe copy constructor
-        return "";
+    std::string oldUserName = action.getOriginUserName();
+    std::string newUserName = action.getNewUserName();
+
+    // if old user exist
+    if (userMap.find(oldUserName) != userMap.end()) {
+
+        // if new user doesn't exist
+        if(userMap.find(newUserName) == userMap.end()){
+
+
+            // duplicate
+            addUserToMap(&(userMap.find(oldUserName)->second->cloneUser(newUserName)));
+            return "";
+        }
+        else{
+            return "New User Name Is Taken";
+        }
     }
     else {
-        return "User Doesn't Exist";
+        return "User To Duplicate Doesn't Exist";
     }
 }
-
-
-
-
 
 // check if string is a number
 bool Session::is_number(const std::string& s)
@@ -257,16 +265,54 @@ bool Session::is_number(const std::string& s)
     return !s.empty() && std::find_if(s.begin(), s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
 }
 
-
-
-
 std::string Session::watchContentById(Watch &action) {
     bool found = false;
     for (auto cont : content) {
         if (cont->getContentId() == action.getContentId()) {
             std::cout << "Watching " + cont->toString() << std::endl;
-            //TODO: getRecomendation;
-            std::cout << "We recommend watching " + TODO + ", continue watching? [y/n]" << std::endl;
+            activeUser->addToHistory(cont);
+
+            Watchable* watchable = cont->getNextWatchable(*this);
+
+            if(watchable){
+                std::string command;
+                std::cout << "We recommend watching "+watchable->toString()+" continue watching? [y/n]" << std::endl;
+                std::getline(std::cin, command);
+                if(command=="y" | command == "Y"){
+                    Watch* action = new Watch(cont->getContentId());
+                    action->act(*this);
+                    watchable->getContentId();
+                }
+            }
         }
     }
+}
+
+void Session::addUserToMap(User* user) {
+    userMap.insert({user->getName(), user});
+}
+
+User *Session::getActiveUser() {
+    return activeUser;
+}
+
+Watchable * Session::getContentAtIndex(int i) {
+    return content[i];
+}
+
+Watchable *Session::getClosestTimeWatchable(double avg, LengthRecommenderUser* user) {
+    int closestLength = std::numeric_limits<int>::max();
+    user->get_history();
+    int index = 0;
+    int chosen = -1;
+    for(auto& item : content){
+        if(!user->userWatched(item)){
+            if(abs(item->getLength()-avg) < closestLength){
+                chosen = index;
+                closestLength = abs(item->getLength()-avg);
+            }
+        }
+        index ++;
+    }
+    return content.at(chosen);
 }

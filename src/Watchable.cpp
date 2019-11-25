@@ -25,6 +25,11 @@ std::string Movie::toString() const {
 
     return ret;
 }
+
+Watchable *Movie::getNextWatchable(Session &sess) const {
+    return sess.getActiveUser()->getRecommendation(sess);
+}
+
 std::string Episode::toString() const {
     std:std::string seriesName = this -> seriesName ;
     std::string numOfSeason = std::to_string(season);
@@ -40,11 +45,29 @@ std::string Episode::toString() const {
     return ret;
 }
 
+Watchable* Episode::getNextWatchable(Session &sess) const {
+
+    // if it is the last episode of the series use recommendation algorithm
+    if(this->nextEpisodeId==-1){
+        return sess.getActiveUser()->getRecommendation(sess);
+    }
+    else{// fetch next episode
+        return sess.getContentAtIndex(nextEpisodeId);
+    }
+}
+
+void Episode::setNextWatchableId(long nextId) {
+    nextEpisodeId = nextId;
+}
+
+long Episode::getNextWatchableId() {
+    return nextEpisodeId;
+}
+
 std::string Watchable::printLengthAndTags() const {
     std::string len = std::to_string(length);
     std::string tags = printTags();
     std::string ret = " " + len + " minutes " + tags;
-
     return ret;
 }
 std::string Watchable::printTags() const {
@@ -56,3 +79,8 @@ std::string Watchable::printTags() const {
 }
 
 int Watchable::getContentId() const { return id; }
+
+int Watchable::getLength() {
+    return length;
+}
+

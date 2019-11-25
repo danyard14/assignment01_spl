@@ -11,7 +11,7 @@ BaseAction::BaseAction() {
 CreateUser::CreateUser (std::string userName, std::string reccomendAlgo) : userName(userName), reccomendAlgo(reccomendAlgo), BaseAction() {}
 ChangeActiveUser::ChangeActiveUser (std::string userName) : userName(userName), BaseAction() {}
 DeleteUser::DeleteUser (std::string userName) : userName(userName), BaseAction() {}
-DuplicateUser::DuplicateUser(std::string originUserName, std::string newUserName) : originUserName(originUserName), newUserName(newUserName) {}
+DuplicateUser::DuplicateUser(std::string originalUserName, std::string newUserName) : originalUserName(originalUserName), newUserName(newUserName) {}
 PrintContentList::PrintContentList() : BaseAction() {}
 PrintWatchHistory::PrintWatchHistory () : BaseAction() {}
 PrintActionsLog::PrintActionsLog():BaseAction(){}
@@ -156,9 +156,13 @@ std::string DuplicateUser::toString() const {
         return ret;
     }
 }
+
 // getters
-std::string DuplicateUser::getOriginUserName() const {
-    return originUserName;
+std::string DuplicateUser:: getOriginUserName() const{
+    return originalUserName;
+}
+std::string DuplicateUser::getNewUserName() const {
+    return newUserName;
 }
 
 // print content list methods
@@ -240,3 +244,8 @@ void Watch::act(Session &sess) {
 }
 
 int Watch::getContentId() { return id; }
+
+std::string Watch::toString() const {
+
+    return "Watch"+getStatus();
+}

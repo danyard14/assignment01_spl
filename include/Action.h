@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#include "User.h"
 
 class Session;
 
@@ -70,15 +71,16 @@ private:
 
 class DuplicateUser : public BaseAction {
 public:
-    DuplicateUser(std::string originUserName, std::string newUserName);
+    DuplicateUser(std::string originalUserName, std::string newUserName);
     virtual void act(Session & sess);
     virtual std::string toString() const;
 
+    std::string getNewUserName() const;
     std::string getOriginUserName() const;
 
 private:
-    std::string originUserName;
     std::string newUserName;
+    std::string originalUserName;
 };
 
 class PrintContentList : public BaseAction {

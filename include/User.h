@@ -10,46 +10,64 @@ class Session;
 
 class User{
 public:
-    User(const std::string& name);
-    User(const User &other);
-    //virtual Watchable* getRecommendation(Session& s) = 0;
+    User(std::string& name);
+    User( User &other);
+    virtual Watchable* getRecommendation(Session& s) = 0;
     virtual ~User();
-    std::string getName() const;
+    std::string getName();
     std::vector<Watchable*> get_history() const;
     User& operator=(const User& other);
+    virtual User& cloneUser(std::string newName)=0;
+    void addToHistory(Watchable* watchable);
+    virtual bool userWatched(Watchable* watchable)=0;
 protected:
     std::vector<Watchable*> history;
+    void setName(std::string nameToSet);
 private:
     std::string name;
-
     // new fields
-    double avg;
+
 };
 
 
 
 class LengthRecommenderUser : public User {
 public:
-    LengthRecommenderUser(const std::string& name);
-    LengthRecommenderUser(const LengthRecommenderUser &other);
+    LengthRecommenderUser( std::string& name);
+    LengthRecommenderUser( LengthRecommenderUser &other);
     virtual Watchable* getRecommendation(Session& s);
+    virtual LengthRecommenderUser& cloneUser(std::string newName);
+    double getAverageWatchTime();
+    bool userWatched(Watchable* watchable);
+
+protected:
 
 private:
+    double avg;
+
 };
 
 class RerunRecommenderUser : public User {
 public:
-    RerunRecommenderUser(const std::string& name);
-    RerunRecommenderUser(const RerunRecommenderUser &other);
-    //virtual Watchable* getRecommendation(Session& s);
+    RerunRecommenderUser( std::string& name);
+    RerunRecommenderUser( RerunRecommenderUser &other);
+    virtual Watchable* getRecommendation(Session& s);
+    virtual RerunRecommenderUser& cloneUser(std::string newName);
+    bool userWatched(Watchable* watchable) override;
+
+
 private:
 };
 
 class GenreRecommenderUser : public User {
 public:
-    GenreRecommenderUser(const std::string& name);
-    GenreRecommenderUser(const GenreRecommenderUser &other);
-    //virtual Watchable* getRecommendation(Session& s);
+    GenreRecommenderUser( std::string& name);
+    GenreRecommenderUser( GenreRecommenderUser &other);
+    virtual Watchable* getRecommendation(Session& s);
+    virtual GenreRecommenderUser& cloneUser(std::string newName);
+    bool userWatched(Watchable* watchable) override;
+
+
 private:
 };
 
