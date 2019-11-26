@@ -15,7 +15,7 @@ Session::Session(const std::string &configFilePath) {
     json j;
     i >> j;
 
-    long id = 1;
+    long id = 0;
 
     // insert all movies to watchable vector
     for (auto &element : j["movies"].items()) {
@@ -48,7 +48,6 @@ Session::Session(const std::string &configFilePath) {
                 Episode* newEpisode = new Episode(id, element.value()["name"], element.value()["episode_length"],
                                                   season, episode, tags);
                 content.push_back(newEpisode);
-                id++;
 
                 if(season == numOfSeasons & episode == numOfEpisodes){
                 newEpisode->setNextWatchableId(-1);
@@ -56,6 +55,7 @@ Session::Session(const std::string &configFilePath) {
                 else{
                     newEpisode->setNextWatchableId(id+1);
                 }
+                id++;
             }
         }
     }
@@ -269,19 +269,20 @@ std::string Session::watchContentById(Watch &action) {
     bool found = false;
     for (auto cont : content) {
         if (cont->getContentId() == action.getContentId()) {
+
             std::cout << "Watching " + cont->toString() << std::endl;
+            action.setStatus(COMPLETED);
             activeUser->addToHistory(cont);
+            Watchable* suggestion = cont->getNextWatchable(*this);
 
-            Watchable* watchable = cont->getNextWatchable(*this);
-
-            if(watchable){
+            if(suggestion){
                 std::string command;
-                std::cout << "We recommend watching "+watchable->toString()+" continue watching? [y/n]" << std::endl;
+                std::cout << "We recommend watching "+suggestion->toString()+" continue watching? [y/n]" << std::endl;
                 std::getline(std::cin, command);
                 if(command=="y" | command == "Y"){
-                    Watch* action = new Watch(cont->getContentId());
+                    Watch* action = new Watch(suggestion->getContentId());
+                    actionsLog.push_back(action);
                     action->act(*this);
-                    watchable->getContentId();
                 }
             }
         }
@@ -302,7 +303,7 @@ Watchable * Session::getContentAtIndex(int i) {
 
 Watchable *Session::getClosestTimeWatchable(double avg, LengthRecommenderUser* user) {
     int closestLength = std::numeric_limits<int>::max();
-    user->get_history();
+    //user->get_history();
     int index = 0;
     int chosen = -1;
     for(auto& item : content){

@@ -18,7 +18,7 @@ public:
 
     //virtual methods
     virtual std::string toString() const = 0;
-    virtual Watchable* getNextWatchable(Session& sess)=0;
+    virtual Watchable* getNextWatchable(Session& sess) const =0;
     virtual int getLength();
 
     // regular methods
@@ -44,7 +44,7 @@ public:
 
     // virtual methods
     virtual std::string toString() const;
-    Watchable* getNextWatchable(Session& sess) const;
+    Watchable* getNextWatchable(Session& sess) const ;
 
 private:
     // fields
@@ -60,7 +60,7 @@ public:
 
     // virtual methods
     virtual std::string toString() const;
-    Watchable* getNextWatchable(Session& sess) const;
+    Watchable* getNextWatchable(Session& sess) const ;
 
     // getters
     long getNextWatchableId();
