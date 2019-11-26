@@ -59,13 +59,6 @@ Session::Session(const std::string &configFilePath) {
             }
         }
     }
-
-    // print the contents
-    /*for (auto &content : content) {
-        std::cout << content -> toString() << std::endl;
-    }*/
-    //actionsLog and userMap are initialized automatically as empty.
-    //TODO:figure out where we get current user from
 }
 Session::Session(const Session &other) {
    //TODO: copy constructor
@@ -184,11 +177,11 @@ std::string Session::createUser(CreateUser &action) {
         if (typeOfUser == "len") {
             LengthRecommenderUser *user = new LengthRecommenderUser(userName);
             userMap.insert({userName, user});
-        } else if (typeOfUser == "gen") {
+        } else if (typeOfUser == "rer") {
             RerunRecommenderUser *user = new RerunRecommenderUser(userName);
             userMap.insert({userName, user});
 
-        } else if (typeOfUser == "rer") {
+        } else if (typeOfUser == "gen") {
             GenreRecommenderUser *user = new GenreRecommenderUser(userName);
             userMap.insert({userName, user});
         }
@@ -206,8 +199,11 @@ std::string Session::changeActiveUser(ChangeActiveUser &action) {
     }
 }
 std::string Session::deleteUser(DeleteUser &action) {
-    if (userMap.find(action.getUserName()) != userMap.end()) {
-        userMap.erase(action.getUserName());
+    std::string userName = action.getUserName();
+    if (userMap.find(userName) != userMap.end()) {
+        std::pair<std::string, User> usr = userMap.find(userName);
+        delete *usr.second;
+        userMap.erase(userName);
         return "";
     }
     else {
@@ -217,9 +213,10 @@ std::string Session::deleteUser(DeleteUser &action) {
 }
 void Session::printContentList(PrintContentList &action) {
     int i = 1;
-    for (auto &element : content)
+    for (auto &element : content) {
         std::cout << std::to_string(i) + ". " + element->toString() + element->printLengthAndTags() << std::endl;
-    i++;
+        i++;
+    }
 }
 void Session::printWatchHistory() {
     int i = 1;
@@ -230,7 +227,7 @@ void Session::printWatchHistory() {
     }
 }
 void Session::printActionLog(){
-    for (int i = actionsLog.size()-2; i > 0; i--) {
+    for (int i = actionsLog.size()-2; i >= 0; i--) {
         std::cout << (actionsLog.at(i))->toString() << std::endl;
     }
 }
@@ -248,6 +245,7 @@ std::string Session::duplicateUser(DuplicateUser &action) {
 
             // duplicate
             addUserToMap(&(userMap.find(oldUserName)->second->cloneUser(newUserName)));
+
             return "";
         }
         else{
@@ -266,26 +264,29 @@ bool Session::is_number(const std::string& s)
 }
 
 std::string Session::watchContentById(Watch &action) {
-    bool found = false;
-    for (auto cont : content) {
-        if (cont->getContentId() == action.getContentId()) {
+    if(action.getContentId() < content.size()) {
+        Watchable* cont = content.at(action.getContentId());
+        std::cout << "Watching " + cont->toString() << std::endl;
+        activeUser->addToHistory(cont);
 
-            std::cout << "Watching " + cont->toString() << std::endl;
-            action.setStatus(COMPLETED);
-            activeUser->addToHistory(cont);
-            Watchable* suggestion = cont->getNextWatchable(*this);
-
-            if(suggestion){
-                std::string command;
-                std::cout << "We recommend watching "+suggestion->toString()+" continue watching? [y/n]" << std::endl;
-                std::getline(std::cin, command);
-                if(command=="y" | command == "Y"){
-                    Watch* action = new Watch(suggestion->getContentId());
-                    actionsLog.push_back(action);
-                    action->act(*this);
-                }
+        Watchable* suggestion = cont->getNextWatchable(*this);
+        if(suggestion){
+            std::string command;
+            std::cout << "We recommend watching "+suggestion->toString()+" continue watching? [y/n]" << std::endl;
+            std::getline(std::cin, command);
+            if(command=="y" | command == "Y"){
+                Watch* action = new Watch(suggestion->getContentId());
+                actionsLog.push_back(action);
+                action->act(*this);
             }
         }
+        else {
+            //TODO:: what if no content
+        }
+        return "";
+    }
+    else {
+        return "Wrong ID";
     }
 }
 
@@ -316,4 +317,14 @@ Watchable *Session::getClosestTimeWatchable(double avg, LengthRecommenderUser* u
         index ++;
     }
     return content.at(chosen);
+}
+
+Watchable* Session::findcontentByGenre(std::string genre) {
+
+    for(auto& watchable : content){
+        if(watchable->hasTag(genre) && !activeUser->userWatched(watchable)){
+            return watchable;
+        }
+    }
+    return  nullptr;
 }

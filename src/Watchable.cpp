@@ -41,6 +41,19 @@ int Watchable::getLength() {
     return length;
 }
 
+std::vector<std::string> Watchable::getTags() {
+    return tags;
+}
+
+bool Watchable::hasTag(std::string tag) {
+    for(auto& item : tags){
+        if(item == tag){
+            return true;
+        }
+    }
+    return false;
+}
+
 
 
 

@@ -5,6 +5,8 @@
 #include <string>
 #include <unordered_set>
 #include <unordered_map>
+#include <map>
+
 class Watchable;
 class Session;
 
@@ -13,24 +15,24 @@ public:
     // constructors
     User(std::string& name);
     User( User &other);
+    User(User&& other);
+    User& operator=(const User& other);
 
-    //distructor
+    // distructor
     virtual ~User();
 
     // regular methods
-    void addToHistory(Watchable* watchable);
+    virtual void addToHistory(Watchable* watchable);
+    bool userWatched(Watchable* watchable);
+    std::pair <std::string, int> getMaxFromMap(std::map<std::string,int>* genreMap);
 
     // virtual methods
     virtual Watchable* getRecommendation(Session& s) = 0;
-    virtual bool userWatched(Watchable* watchable)=0;
     virtual User& cloneUser(std::string newName)=0;
 
     //getters
     std::string getName();
     std::vector<Watchable*> get_history() const;
-
-    // rule of 5 stuff
-    User& operator=(const User& other);
 
 protected:
     //fields
@@ -42,26 +44,20 @@ protected:
 private:
     // fields
     std::string name;
-
-
-    // new fields
-
 };
 
 
 class LengthRecommenderUser : public User {
 public:
     // constructors
-    LengthRecommenderUser( std::string& name);
-    LengthRecommenderUser( LengthRecommenderUser &other);
+    LengthRecommenderUser(std::string& name);
+    LengthRecommenderUser(LengthRecommenderUser &other);
+    LengthRecommenderUser(LengthRecommenderUser &&other);
+    LengthRecommenderUser& operator=(const LengthRecommenderUser& other);
 
     // virtual methods
     virtual Watchable* getRecommendation(Session& s);
     virtual LengthRecommenderUser& cloneUser(std::string newName);
-
-    // regular methods
-    bool userWatched(Watchable* watchable);
-
 protected:
 
 private:
@@ -76,15 +72,18 @@ public:
     // constructors
     RerunRecommenderUser( std::string& name);
     RerunRecommenderUser( RerunRecommenderUser &other);
+    RerunRecommenderUser(RerunRecommenderUser &&other);
+    RerunRecommenderUser& operator=(const RerunRecommenderUser& other);
 
     // virtual methods
     virtual Watchable* getRecommendation(Session& s);
     virtual RerunRecommenderUser& cloneUser(std::string newName);
 
-    // regular methods
-    bool userWatched(Watchable* watchable) override;
+    // getters
+    int getLastRecIndex();
 
 private:
+    int lastRecIndex;
 };
 
 
@@ -94,14 +93,11 @@ public:
     // constructors
     GenreRecommenderUser( std::string& name);
     GenreRecommenderUser( GenreRecommenderUser &other);
+    GenreRecommenderUser& operator=(const GenreRecommenderUser& other);
 
     // virtual methods
     virtual Watchable* getRecommendation(Session& s);
     virtual GenreRecommenderUser& cloneUser(std::string newName);
-
-    // regular methods
-    bool userWatched(Watchable* watchable) override;
-
 
 private:
 };

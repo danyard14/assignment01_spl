@@ -44,10 +44,8 @@ void CreateUser :: act(Session &sess) {
     std::string ret = sess.createUser(*this);
     if (ret == "")
         complete();
-    else {
-        setStatus(ERROR);
-        setErrorMsg(ret);
-    }
+    else
+        error(ret);
 }
 std::string CreateUser::toString() const {
     std::string ret = "CreateUser ";
@@ -75,9 +73,8 @@ void ChangeActiveUser::act(Session &sess) {
     std::string ret = sess.changeActiveUser(*this);
     if (ret == "")
         complete();
-    else {
+    else
         error(ret);
-    }
 }
 std::string ChangeActiveUser::toString() const {
     std::string ret = "ChangeActiveUser ";
@@ -104,9 +101,8 @@ void DeleteUser::act(Session &sess) {
     std::string ret = sess.deleteUser(*this);
     if (ret == "")
         complete();
-    else {
+    else
         error(ret);
-    }
 }
 std::string DeleteUser::toString() const {
     std::string ret = "DeleteUser ";
@@ -135,9 +131,8 @@ void DuplicateUser::act(Session &sess) {
     std::string ret = sess.duplicateUser(*this);
     if (ret == "")
         complete();
-    else {
+    else
         error(ret);
-    }
 }
 std::string DuplicateUser::toString() const {
     std::string ret = "DuplicateUser ";
@@ -239,13 +234,29 @@ std::string PrintActionsLog::toString() const {
 
 Watch::Watch(int id) : id(id) {}
 void Watch::act(Session &sess) {
-    sess.watchContentById(*this); // maybe add if its ok or not (id) and ret error if needed
-    complete();
+    std::string ret = sess.watchContentById(*this);
+    if (ret == "")
+        complete();
+    else
+        error(ret);
 }
 
 int Watch::getContentId() { return id; }
 
 std::string Watch::toString() const {
-
-    return "Watch"+getStatus();
+    std::string ret = "Watch ";
+    ActionStatus status = getStatus();
+    if(status == COMPLETED) {
+        ret += "COMPLETED";
+        return ret;
+    }
+    else if (status == ERROR) {
+        ret += "ERROR: ";
+        ret += getErrorMsg();
+        return ret;
+    }
+    else {
+        ret += "PENDING";
+        return ret;
+    }
 }

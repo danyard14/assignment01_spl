@@ -27,6 +27,7 @@ public:
     void printWatchHistory();
     void printActionLog();
     void addUserToMap(User* user);
+    Watchable* findcontentByGenre(std::string genre);
     Watchable * getContentAtIndex(int i);
     Watchable * getClosestTimeWatchable(double avg, LengthRecommenderUser* user);
 

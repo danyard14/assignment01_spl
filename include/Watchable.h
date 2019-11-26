@@ -24,9 +24,11 @@ public:
     // regular methods
     std::string printLengthAndTags() const;
     std::string printTags() const;
+    bool hasTag(std::string tag);
 
     // getters
     int getContentId() const;
+    std::vector<std::string> getTags();
 
 private:
     // fields
