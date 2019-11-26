@@ -239,7 +239,7 @@ std::string PrintActionsLog::toString() const {
 
 Watch::Watch(int id) : id(id) {}
 void Watch::act(Session &sess) {
-    sess.watchContentById(*this);
+    sess.watchContentById(*this); // maybe add if its ok or not (id) and ret error if needed
     complete();
 }
 

@@ -9,41 +9,68 @@ class Session;
 
 class Watchable{
 public:
+    // constructors
     Watchable(long id, int length, const std::vector<std::string>& tags);
     Watchable(const Watchable &other);
+
+    //distructor
     virtual ~Watchable();
+
+    //virtual methods
     virtual std::string toString() const = 0;
-    std::string printLengthAndTags() const;
-    virtual Watchable* getNextWatchable(Session& sess);
-    int getContentId() const;
-    std::string printTags() const;
+    virtual Watchable* getNextWatchable(Session& sess)=0;
     virtual int getLength();
+
+    // regular methods
+    std::string printLengthAndTags() const;
+    std::string printTags() const;
+
+    // getters
+    int getContentId() const;
+
 private:
+    // fields
     const long id;
     int length;
     std::vector<std::string> tags;
+
 };
 
 class Movie : public Watchable{
 public:
+    // constructors
     Movie(long id, const std::string& name, int length, const std::vector<std::string>& tags);
     Movie(const Movie &other);
+
+    // virtual methods
     virtual std::string toString() const;
-    virtual Watchable* getNextWatchable(Session& sess) const;
+    Watchable* getNextWatchable(Session& sess) const;
+
 private:
+    // fields
     std::string name;
 };
 
 
 class Episode: public Watchable{
 public:
+    // constructors
     Episode(long id, const std::string& seriesName,int length, int season, int episode ,const std::vector<std::string>& tags);
     Episode(const Episode &other);
+
+    // virtual methods
     virtual std::string toString() const;
-    virtual Watchable* getNextWatchable(Session& sess) const;
-    void setNextWatchableId(long nextId);
+    Watchable* getNextWatchable(Session& sess) const;
+
+    // getters
     long getNextWatchableId();
+
+
+    // setters
+    void setNextWatchableId(long nextId);
+
 private:
+    // fields
     std::string seriesName;
     int season;
     int episode;
