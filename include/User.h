@@ -14,9 +14,10 @@ class User{
 public:
     // constructors
     User(std::string& name);
-    User( User &other);
+    User(const User &other);
     User(User&& other);
     User& operator=(const User& other);
+    User& operator=(User&& other);
 
     // distructor
     virtual ~User();
@@ -51,9 +52,10 @@ class LengthRecommenderUser : public User {
 public:
     // constructors
     LengthRecommenderUser(std::string& name);
-    LengthRecommenderUser(LengthRecommenderUser &other);
+    LengthRecommenderUser(const LengthRecommenderUser &other);
     LengthRecommenderUser(LengthRecommenderUser &&other);
     LengthRecommenderUser& operator=(const LengthRecommenderUser& other);
+    LengthRecommenderUser& operator=(LengthRecommenderUser&& other);
 
     // virtual methods
     virtual Watchable* getRecommendation(Session& s);
@@ -66,14 +68,14 @@ private:
 
 };
 
-
 class RerunRecommenderUser : public User {
 public:
     // constructors
-    RerunRecommenderUser( std::string& name);
-    RerunRecommenderUser( RerunRecommenderUser &other);
+    RerunRecommenderUser(std::string& name);
+    RerunRecommenderUser(const RerunRecommenderUser &other);
     RerunRecommenderUser(RerunRecommenderUser &&other);
     RerunRecommenderUser& operator=(const RerunRecommenderUser& other);
+    RerunRecommenderUser& operator=(RerunRecommenderUser&& other);
 
     // virtual methods
     virtual Watchable* getRecommendation(Session& s);
@@ -86,14 +88,14 @@ private:
     int lastRecIndex;
 };
 
-
-
 class GenreRecommenderUser : public User {
 public:
     // constructors
-    GenreRecommenderUser( std::string& name);
-    GenreRecommenderUser( GenreRecommenderUser &other);
+    GenreRecommenderUser(std::string& name);
+    GenreRecommenderUser(const GenreRecommenderUser &other);
+    GenreRecommenderUser(GenreRecommenderUser &&other);
     GenreRecommenderUser& operator=(const GenreRecommenderUser& other);
+    GenreRecommenderUser& operator=(GenreRecommenderUser&& other);
 
     // virtual methods
     virtual Watchable* getRecommendation(Session& s);

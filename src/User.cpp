@@ -14,7 +14,7 @@ User::User( std::string &name) : name(name){
 }
 
 // copy constructor
-User::User(User &other) : name(other.name), history(other.history) {}
+User::User(const User &other) : name(other.name), history(other.history) {}
 
 // copy assignment operator
 User& User::operator=(const User& other) {
@@ -24,6 +24,14 @@ User& User::operator=(const User& other) {
 
 // move constructor
 User::User(User &&other) : name(other.name), history(other.history) {
+    other.name = nullptr;
+    other.history.clear();
+}
+
+// move assignment operator
+User& User::operator=(User &&other) {
+    name = other.name;
+    history = other.history;
     other.name = nullptr;
     other.history.clear();
 }
@@ -83,7 +91,7 @@ std::pair<std::string, int> User::getMaxFromMap(std::map<std::string, int>* map)
 LengthRecommenderUser::LengthRecommenderUser(std::string &name) : User(name) {}
 
 // copy constructor
-LengthRecommenderUser::LengthRecommenderUser(LengthRecommenderUser &other) : avg(other.avg), User(other) {}
+LengthRecommenderUser::LengthRecommenderUser(const LengthRecommenderUser &other) : avg(other.avg), User(other) {}
 
 // copy assignment operator
 LengthRecommenderUser& LengthRecommenderUser::operator=(const LengthRecommenderUser& other) {
@@ -93,6 +101,11 @@ LengthRecommenderUser& LengthRecommenderUser::operator=(const LengthRecommenderU
 // move constructor
 LengthRecommenderUser::LengthRecommenderUser(LengthRecommenderUser &&other) : avg(other.avg), User(other) {
     other.avg = 0;
+}
+
+// move assignment operator
+LengthRecommenderUser& LengthRecommenderUser::operator=(LengthRecommenderUser &&other) {
+    //TODO:: check how to do
 }
 
 // return new user of type length
@@ -121,7 +134,7 @@ Watchable* LengthRecommenderUser::getRecommendation(Session &s) {
 RerunRecommenderUser::RerunRecommenderUser( std::string &name) :  lastRecIndex(-1), User(name) {}
 
 // copy constructor
-RerunRecommenderUser::RerunRecommenderUser(RerunRecommenderUser &other) : lastRecIndex(other.lastRecIndex), User(other) {}
+RerunRecommenderUser::RerunRecommenderUser(const RerunRecommenderUser &other) : lastRecIndex(other.lastRecIndex), User(other) {}
 
 // copy assignment operator
 RerunRecommenderUser& RerunRecommenderUser::operator=(const RerunRecommenderUser& other) {
@@ -131,6 +144,11 @@ RerunRecommenderUser& RerunRecommenderUser::operator=(const RerunRecommenderUser
 // move constructor
 RerunRecommenderUser::RerunRecommenderUser(RerunRecommenderUser &&other) : lastRecIndex(other.lastRecIndex), User(other) {
     other.lastRecIndex = 0;
+}
+
+// move assignment operator
+RerunRecommenderUser& RerunRecommenderUser::operator=(RerunRecommenderUser &&other) {
+    //TODO:: check how to do
 }
 
 int RerunRecommenderUser:: getLastRecIndex() {
@@ -152,24 +170,29 @@ Watchable *RerunRecommenderUser::getRecommendation(Session &s) {
 
 RerunRecommenderUser &RerunRecommenderUser::cloneUser(std::string newName){
     RerunRecommenderUser* userClone = new RerunRecommenderUser(*this);
-//    for(auto& watchable : history){
-//        userClone->history
-//    }
     userClone->setName(newName);
     return *userClone;
 }
 
 // GENRE user type
 // constructor
-GenreRecommenderUser::GenreRecommenderUser( std::string &name) : User(name) {
+GenreRecommenderUser::GenreRecommenderUser(std::string &name) : User(name) {
 
 }
 
 // copy constructor
-GenreRecommenderUser::GenreRecommenderUser( GenreRecommenderUser &other) : User(other) {}
+GenreRecommenderUser::GenreRecommenderUser(const GenreRecommenderUser &other) : User(other) {}
 
 // copy assignment operator
 GenreRecommenderUser& GenreRecommenderUser::operator=(const GenreRecommenderUser& other) {
+    //TODO:: check how to do
+}
+
+// move constructor
+GenreRecommenderUser::GenreRecommenderUser(GenreRecommenderUser &&other) : User(other) {}
+
+// move assignment operator
+GenreRecommenderUser& GenreRecommenderUser::operator=(GenreRecommenderUser &&other) {
     //TODO:: check how to do
 }
 

@@ -8,7 +8,6 @@
 
 // constractor
 Session::Session(const std::string &configFilePath) {
-    defaultUserString = "default";
     // read a JSON file
     using json = nlohmann::json;
     std::ifstream i(configFilePath);
@@ -60,29 +59,47 @@ Session::Session(const std::string &configFilePath) {
         }
     }
 }
-Session::Session(const Session &other) {
-   //TODO: copy constructor
-    }
+
+// copy construtor
+//Session::Session(const Session &other) {
+//    // copy actions
+//   for (auto act : other.actionsLog) {
+//       actionsLog.push_back(&act->cloneAction());
+//   }
+//   // copy contents
+//    for (auto con : other.content) {
+//        content.push_back(&con->cloneWatchable());
+//    }
+//    // copy userMap
+//    for (auto user : other.userMap) {
+//        //userMap.
+//    }
+//}
+
 // destractor
 Session::~Session() {
-    actionsLog.clear();
-
-    activeUser = nullptr;
-
-    for (auto content : content) {
-        delete content;
+    // delete users
+    for(auto& item : userMap){
+        delete item.second;
     }
-
-    for (auto user : userMap) {
-        delete user.second;
+    // delete actions
+    for(auto& item : actionsLog){
+        delete item;
     }
-
+    // delete washables
+    for(auto& item : content){
+        delete item;
+    }
     userMap.clear();
+    actionsLog.clear();
+    content.clear();
+    activeUser = nullptr;
 }
 
 void Session::start() {
     Session("../config1.json");
-    activeUser = new LengthRecommenderUser(defaultUserString);
+    std::string def = "default";
+    activeUser = new LengthRecommenderUser(def);
     std::string command;
     std::cout << "insert a command";
     std::getline(std::cin, command);
@@ -106,14 +123,14 @@ void Session::start() {
                 actionsLog.push_back(action);
                 action->act(*this);
         }
-        else if (commandType == "deleteuser") {
-                std::string afterFirstWord = command.substr(command.find(' ') + 1);
-                std::string userName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
-
-                DeleteUser* action = new DeleteUser(userName);
-                actionsLog.push_back(action);
-                action->act(*this);
-        }
+//        else if (commandType == "deleteuser") {
+//                std::string afterFirstWord = command.substr(command.find(' ') + 1);
+//                std::string userName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
+//
+//                DeleteUser* action = new DeleteUser(userName);
+//                actionsLog.push_back(action);
+//                action->act(*this);
+//        }
         else if (commandType == "dupuser") {
             std::string afterFirstWord = command.substr(command.find(' ') + 1);
             std::string originUserName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
@@ -198,19 +215,19 @@ std::string Session::changeActiveUser(ChangeActiveUser &action) {
         return "User Doesn't Exist";
     }
 }
-std::string Session::deleteUser(DeleteUser &action) {
-    std::string userName = action.getUserName();
-    if (userMap.find(userName) != userMap.end()) {
-        std::pair<std::string, User> usr = userMap.find(userName);
-        delete *usr.second;
-        userMap.erase(userName);
-        return "";
-    }
-    else {
-        action.setStatus(ERROR);
-        return "User Doesn't Exist";
-    }
-}
+//std::string Session::deleteUser(DeleteUser &action) {
+//    std::string userName = action.getUserName();
+//    if (userMap.find(userName) != userMap.end()) {
+//        std::pair<std::string, User> usr = userMap.find(userName);
+//        delete *usr.second;
+//        userMap.erase(userName);
+//        return "";
+//    }
+//    else {
+//        action.setStatus(ERROR);
+//        return "User Doesn't Exist";
+//    }
+//}
 void Session::printContentList(PrintContentList &action) {
     int i = 1;
     for (auto &element : content) {
@@ -241,8 +258,6 @@ std::string Session::duplicateUser(DuplicateUser &action) {
 
         // if new user doesn't exist
         if(userMap.find(newUserName) == userMap.end()){
-
-
             // duplicate
             addUserToMap(&(userMap.find(oldUserName)->second->cloneUser(newUserName)));
 
@@ -327,4 +342,23 @@ Watchable* Session::findcontentByGenre(std::string genre) {
         }
     }
     return  nullptr;
+}
+
+Session::Session(const Session &other) {
+
+    // deep copy content
+    for(auto& item : other.content){
+        Watchable& watchable = item->cloneWatchable();
+        this->content.push_back(&watchable);
+    }
+
+    // deep copy actions
+    for(auto& item : other.actionsLog){
+        BaseAction& action = item->cloneAction();
+        this->actionsLog.push_back(&action);
+    }
+    // deep copy of users
+    for(auto& item : other.userMap){
+        User* user = item.second;
+    }
 }

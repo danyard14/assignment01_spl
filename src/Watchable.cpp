@@ -5,16 +5,15 @@
 #include "../include/Session.h"
 
 
-long getNextWatchableId();
-
+long getNextWatchableId();//TODO::what is it?
+//
 // WATCHABLE
-
+//
 // constractors
 Watchable::Watchable(long id, int length, const std::vector<std::string> &tags) : id(id), length(length), tags(tags) {}
 
 // copy constructor
 Watchable::Watchable(const Watchable &other) : id(other.id), length(other.length), tags(other.tags) {}
-
 
 // destructor
 Watchable::~Watchable() { tags.clear(); }
@@ -54,17 +53,9 @@ bool Watchable::hasTag(std::string tag) {
     return false;
 }
 
-
-
-
-
-
-
-
-
-
-
+//
 // MOVIE
+//
 
 // constructors
 Movie::Movie(long id, const std::string &name, int length, const std::vector<std::string> &tags) : name(name), Watchable(id, length, tags) {}
@@ -81,21 +72,28 @@ std::string Movie::toString() const {
     return ret;
 }
 
-
-Watchable * Movie::getNextWatchable(Session &sess) const {
+Watchable* Movie::getNextWatchable(Session &sess) const {
     return sess.getActiveUser()->getRecommendation(sess);
 }
 
+Movie &Movie::cloneWatchable() {
+    std::vector<std::string> const newTagVector = this->getTags();
+    std::string const nameForNew = this->name;
+    long id = this->getContentId();
+    int length = this->getLength();
+    Movie *movie = new Movie(id,nameForNew,length,newTagVector);
+    return *movie;
+}
 
+// return new watchable of type movie
+//Movie &Movie::cloneWatchable() {
+//    Movie* watchableClone = new Movie(*this);
+//    return *watchableClone;
+//}
 
-
-
-
-
-
-
-
+//
 // EPISODE
+//
 
 // constructors
 Episode::Episode(long id, const std::string &seriesName, int length, int season, int episode,
@@ -131,6 +129,16 @@ Watchable* Episode::getNextWatchable(Session &sess) const {
     }
 }
 
+Episode &Episode::cloneWatchable() {
+    std::vector<std::string> const newTagVector = this->getTags();
+    std::string const nameForNew = this->seriesName;
+    long id = this->getContentId();
+    int length = this->getLength();
+    Episode *episode = new Episode(id,nameForNew,length,this->season,this->episode,newTagVector);
+    return *episode;
+}
+
+
 // setters
 void Episode::setNextWatchableId(long nextId) {
     nextEpisodeId = nextId;
@@ -141,3 +149,8 @@ long Episode::getNextWatchableId() {
     return nextEpisodeId;
 }
 
+// return new watchable of type episode
+//Episode &Episode::cloneWatchable() {
+//    Episode* watchableClone = new Episode(*this);
+//    return *watchableClone;
+//}

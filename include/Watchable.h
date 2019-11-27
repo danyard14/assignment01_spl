@@ -13,13 +13,15 @@ public:
     Watchable(long id, int length, const std::vector<std::string>& tags);
     Watchable(const Watchable &other);
 
-    //distructor
+    //destructor
     virtual ~Watchable();
 
     //virtual methods
     virtual std::string toString() const = 0;
     virtual Watchable* getNextWatchable(Session& sess) const =0;
     virtual int getLength();
+    virtual Watchable& cloneWatchable() = 0;
+
 
     // regular methods
     std::string printLengthAndTags() const;
@@ -47,6 +49,7 @@ public:
     // virtual methods
     virtual std::string toString() const;
     Watchable* getNextWatchable(Session& sess) const ;
+    virtual Movie& cloneWatchable();
 
 private:
     // fields
@@ -63,6 +66,7 @@ public:
     // virtual methods
     virtual std::string toString() const;
     Watchable* getNextWatchable(Session& sess) const ;
+    virtual Episode& cloneWatchable();
 
     // getters
     long getNextWatchableId();
