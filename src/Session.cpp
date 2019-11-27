@@ -123,14 +123,14 @@ void Session::start() {
                 actionsLog.push_back(action);
                 action->act(*this);
         }
-//        else if (commandType == "deleteuser") {
-//                std::string afterFirstWord = command.substr(command.find(' ') + 1);
-//                std::string userName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
-//
-//                DeleteUser* action = new DeleteUser(userName);
-//                actionsLog.push_back(action);
-//                action->act(*this);
-//        }
+        else if (commandType == "deleteuser") {
+                std::string afterFirstWord = command.substr(command.find(' ') + 1);
+                std::string userName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
+
+                DeleteUser* action = new DeleteUser(userName);
+                actionsLog.push_back(action);
+                action->act(*this);
+        }
         else if (commandType == "dupuser") {
             std::string afterFirstWord = command.substr(command.find(' ') + 1);
             std::string originUserName = afterFirstWord.substr(0, afterFirstWord.find_first_of(' '));
@@ -215,19 +215,19 @@ std::string Session::changeActiveUser(ChangeActiveUser &action) {
         return "User Doesn't Exist";
     }
 }
-//std::string Session::deleteUser(DeleteUser &action) {
-//    std::string userName = action.getUserName();
-//    if (userMap.find(userName) != userMap.end()) {
-//        std::pair<std::string, User> usr = userMap.find(userName);
-//        delete *usr.second;
-//        userMap.erase(userName);
-//        return "";
-//    }
-//    else {
-//        action.setStatus(ERROR);
-//        return "User Doesn't Exist";
-//    }
-//}
+std::string Session::deleteUser(DeleteUser &action) {
+    std::string userName = action.getUserName();
+    if (userMap.find(userName) != userMap.end()) {
+        auto usr = userMap.find(userName);
+        delete usr->second;
+        userMap.erase(userName);
+        return "";
+    }
+    else {
+        action.setStatus(ERROR);
+        return "User Doesn't Exist";
+    }
+}
 void Session::printContentList(PrintContentList &action) {
     int i = 1;
     for (auto &element : content) {
@@ -344,6 +344,7 @@ Watchable* Session::findcontentByGenre(std::string genre) {
     return  nullptr;
 }
 
+// copy constructor
 Session::Session(const Session &other) {
 
     // deep copy content
@@ -358,7 +359,67 @@ Session::Session(const Session &other) {
         this->actionsLog.push_back(&action);
     }
     // deep copy of users
-    for(auto& item : other.userMap){
-        User* user = item.second;
+    for(auto& user : other.userMap){
+        User& newUser = user.second->cloneUser(user.second->getName());
+        newUser.clearHistory();
+        for(auto& watchable : user.second->get_history()){
+            newUser.addToHistory(this->content.at(watchable->getContentId()));
+        }
+        this->userMap.insert({newUser.getName(),&newUser});
+    }
+    this->activeUser = (this->userMap.find(other.activeUser->getName()))->second;
+}
+
+// move constructor
+Session::Session(Session &&other) {
+    this->content = other.content;
+    this->actionsLog = other.actionsLog;
+    this->userMap = other.userMap;
+    this->activeUser = other.activeUser;
+
+    for(auto& item: other.content){
+        item = nullptr;
+    }
+    for(auto& item: other.actionsLog){
+        item = nullptr;
+    }
+    for(auto& item: other.userMap){
+        item.second = nullptr;
+        // maybe change first
+    }
+    other.activeUser = nullptr;
+}
+
+Session &Session::operator=(const Session &other) {
+    if( & other == this) {
+        return *this;
+    }
+
+    for(auto& item: this->content){
+        delete item;
+    }
+    for(auto& item: this->actionsLog){
+        delete item;
+    }
+    for(auto& item: this->userMap){
+        delete item.second;
+    }
+
+    this->content.clear();
+    this->actionsLog.clear();
+    this->userMap.clear();
+
+    for(auto& watchable : other.content ){
+        this->content.push_back(&watchable->cloneWatchable());
+    }
+    for(auto& action : other.actionsLog ){
+        this->actionsLog.push_back(&action->cloneAction());
+    }
+    for(auto& user : other.userMap ){
+        User &newUser = user.second->cloneUser(user.second->getName());
+        for(auto& watched : user.second->get_history()){
+            newUser.addToHistory(watched);
+        }
+        this->userMap.insert({newUser.getName(),newUser*});
     }
 }
