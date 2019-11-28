@@ -3,9 +3,6 @@
 //
 #include "../include/Watchable.h"
 #include "../include/Session.h"
-
-
-long getNextWatchableId();//TODO::what is it?
 //
 // WATCHABLE
 //
@@ -30,7 +27,7 @@ std::string Watchable::printTags() const {
     for (auto &tag : tags) {
         ret += tag + ", ";
     }
-    return ret.substr(0, ret.length() - 3) + "]";
+    return ret.substr(0, ret.length() - 2) + "]";
 }
 
 // getters
@@ -66,7 +63,6 @@ Movie::Movie(const Movie &other) : name(other.name), Watchable(other) {}
 // methods
 std::string Movie::toString() const {
     std:std::string movieName = this -> name ;
-
     std::string ret = movieName;
 
     return ret;
@@ -84,12 +80,6 @@ Movie &Movie::cloneWatchable() {
     Movie *movie = new Movie(id,nameForNew,length,newTagVector);
     return *movie;
 }
-
-// return new watchable of type movie
-//Movie &Movie::cloneWatchable() {
-//    Movie* watchableClone = new Movie(*this);
-//    return *watchableClone;
-//}
 
 //
 // EPISODE
@@ -119,13 +109,12 @@ std::string Episode::toString() const {
 }
 
 Watchable* Episode::getNextWatchable(Session &sess) const {
-
     // if it is the last episode of the series use recommendation algorithm
     if(this->nextEpisodeId==-1){
         return sess.getActiveUser()->getRecommendation(sess);
     }
     else{// fetch next episode
-        return sess.getContentAtIndex(nextEpisodeId);
+        return sess.getContentAtIndex(nextEpisodeId-1);
     }
 }
 
@@ -138,19 +127,7 @@ Episode &Episode::cloneWatchable() {
     return *episode;
 }
 
-
 // setters
 void Episode::setNextWatchableId(long nextId) {
     nextEpisodeId = nextId;
 }
-
-// getters
-long Episode::getNextWatchableId() {
-    return nextEpisodeId;
-}
-
-// return new watchable of type episode
-//Episode &Episode::cloneWatchable() {
-//    Episode* watchableClone = new Episode(*this);
-//    return *watchableClone;
-//}

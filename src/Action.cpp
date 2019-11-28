@@ -31,6 +31,11 @@ void BaseAction::complete() {
 void  BaseAction::error(const std::string &msg) {
     status = ERROR;
     errorMsg = msg;
+
+    if(getErrorMsg() != ""){
+        std::cout <<"Error - " + getErrorMsg() + "\n";
+    }
+
 }
 // getters
 ActionStatus BaseAction::getStatus() const {

@@ -18,6 +18,9 @@ User::User(const User &other) : name(other.name), history(other.history) {}
 
 // copy assignment operator
 User& User::operator=(const User& other) {
+    if(this != &other){
+        history.clear();
+    }
     name = other.name;
     history = other.history;
 }
@@ -91,16 +94,16 @@ void User::clearHistory() {
 //
 // LENGTH type user
 
-// constructor
+// regular constructor
 LengthRecommenderUser::LengthRecommenderUser(std::string &name) : User(name) {}
 
 // copy constructor
-LengthRecommenderUser::LengthRecommenderUser(const LengthRecommenderUser &other) : avg(other.avg), User(other) {}
+LengthRecommenderUser::LengthRecommenderUser(const LengthRecommenderUser &other) : avg(other.avg), User(other) {
+
+}
 
 // copy assignment operator
-LengthRecommenderUser& LengthRecommenderUser::operator=(const LengthRecommenderUser& other) {
-    //TODO:: check how to do
-}
+LengthRecommenderUser& LengthRecommenderUser::operator=(const LengthRecommenderUser& other) {}
 
 // move constructor
 LengthRecommenderUser::LengthRecommenderUser(LengthRecommenderUser &&other) : avg(other.avg), User(other) {
@@ -121,12 +124,10 @@ LengthRecommenderUser &LengthRecommenderUser::cloneUser(std::string newName){
 
 Watchable* LengthRecommenderUser::getRecommendation(Session &s) {
     int sum = 0;
-    int i = 0;
     for(auto& item: history){
         sum = sum + item->getLength();
-        i++;
     }
-    double average = sum/i;
+    double average = sum/(history.size());
 
     return s.getClosestTimeWatchable(average,this);
 }

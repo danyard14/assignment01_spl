@@ -68,10 +68,6 @@ public:
     Watchable* getNextWatchable(Session& sess) const ;
     virtual Episode& cloneWatchable();
 
-    // getters
-    long getNextWatchableId();
-
-
     // setters
     void setNextWatchableId(long nextId);
 

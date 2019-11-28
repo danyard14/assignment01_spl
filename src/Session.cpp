@@ -6,11 +6,13 @@
 #include "../include/User.h"
 #include <limits>
 
+//TODO: 1. print error messages
+//      2. check if reccomendation algorithm is valid.
+
+
 // methods
 void Session::start() {
-    Session("../config1.json");
-    std::string def = "default";
-    activeUser = new LengthRecommenderUser(def);
+  //  Session("../config2.json");
     std::string command;
     std::cout << "insert a command";
     std::getline(std::cin, command);
@@ -88,13 +90,20 @@ void Session::start() {
             action->act(*this);
             action->setStatus(COMPLETED);
         }
+        else if (command != ""){
+            std::cout << "unrecognized command \n";
+        }
         std::cout << "insert a command";
         std::getline(std::cin, command);
+
     }
     if(command == "exit"){
         Exit *action = new Exit();
         action->act(*this);
         actionsLog.push_back(action);
+    }
+    else{
+        std::cout << "unrecognized command";
     }
 }
 void Session::printContentList(PrintContentList &action) {
@@ -135,28 +144,31 @@ std::string Session::duplicateUser(DuplicateUser &action) {
             return "";
         }
         else{
-            return "New User Name Is Taken";
+            return "new user name is taken";
         }
     }
     else {
-        return "User To Duplicate Doesn't Exist";
+        return "user to duplicate doesn't exist";
     }
 }
 std::string Session::watchContentById(Watch &action) {
-    if(action.getContentId() < content.size()) {
-        Watchable* cont = content.at(action.getContentId());
-        std::cout << "Watching " + cont->toString() +"..." << std::endl;
-        activeUser->addToHistory(cont);
+    if(action.getContentId() <= content.size()) {
+        long index = action.getContentId()-1;
+        if(index >= 0 & index <content.size()){
+            Watchable* cont = content.at(index);
+            std::cout << "Watching " + cont->toString() +"..." << std::endl;
+            activeUser->addToHistory(cont);
 
-        Watchable* suggestion = cont->getNextWatchable(*this);
-        if(suggestion){
-            std::string command;
-            std::cout << "We recommend watching "+suggestion->toString()+", continue watching? [y/n]" << std::endl;
-            std::getline(std::cin, command);
-            if(command=="y" | command == "Y"){
-                Watch* action = new Watch(suggestion->getContentId());
-                actionsLog.push_back(action);
-                action->act(*this);
+            Watchable* suggestion = cont->getNextWatchable(*this);
+            if(suggestion) {
+                std::string command;
+                std::cout << "We recommend watching " + suggestion->toString() + ", continue watching? [y/n]" << std::endl;
+                std::getline(std::cin, command);
+                if (command == "y" | command == "Y") {
+                    Watch *action = new Watch(suggestion->getContentId());
+                    actionsLog.push_back(action);
+                    action->act(*this);
+                }
             }
         }
         else {
@@ -171,7 +183,7 @@ std::string Session::watchContentById(Watch &action) {
 std::string Session::createUser(CreateUser &action) {
     // check if user exist already
     if (userMap.find(action.getUserName()) != userMap.end()) {
-        return "User Already Exist";
+        return "username is already in use";
     }
     else {
         std::string typeOfUser = action.getUserRecAlgo();
@@ -183,10 +195,12 @@ std::string Session::createUser(CreateUser &action) {
         } else if (typeOfUser == "rer") {
             RerunRecommenderUser *user = new RerunRecommenderUser(userName);
             userMap.insert({userName, user});
-
         } else if (typeOfUser == "gen") {
             GenreRecommenderUser *user = new GenreRecommenderUser(userName);
             userMap.insert({userName, user});
+        }
+        else{
+            return "recommendation algorithm is invalid";
         }
         return "";
     }
@@ -195,6 +209,7 @@ std::string Session::changeActiveUser(ChangeActiveUser &action) {
     std::string userName = action.getUserName();
     if (userMap.find(userName) != userMap.end()) {
         activeUser = userMap.at(userName);
+
         return "";
     }
     else {
@@ -251,13 +266,16 @@ User *Session::getActiveUser() {
 
 // regular constructor
 Session::Session(const std::string &configFilePath) {
+    std::string def = "default";
+    activeUser = new LengthRecommenderUser(def);
+    userMap.insert({activeUser->getName(),activeUser});
     // read a JSON file
     using json = nlohmann::json;
     std::ifstream i(configFilePath);
     json j;
     i >> j;
 
-    long id = 0;
+    long id = 1;
 
     // insert all movies to watchable vector
     for (auto &element : j["movies"].items()) {
@@ -304,10 +322,8 @@ Session::Session(const std::string &configFilePath) {
 }
 
 // rule of 5 below
-
 // copy constructor
 Session::Session(const Session &other) { // deep copy without deleting existing other
-
     // deep copy content
     for(auto& watchable : other.content){
         Watchable &newWatchable = watchable->cloneWatchable();
@@ -332,9 +348,7 @@ Session::Session(const Session &other) { // deep copy without deleting existing 
         }
         this->userMap.insert({newUser.getName(),&newUser});
     }
-
-    // create pointer to the new active user representing the old one
-    this->activeUser = (this->userMap.find(other.activeUser->getName()))->second;
+    this->activeUser = this->userMap.find(other.activeUser->getName())->second;
 }
 
 // copy assignment operator
@@ -383,8 +397,8 @@ Session &Session::operator=(const Session &other) { // delete my previous stuff 
         }
         this->userMap.insert({newUser.getName(),&newUser});
     }
-    this->activeUser = this->userMap.find(other.activeUser->getName())->second;
 
+    this->activeUser = this->userMap.find(other.activeUser->getName())->second;
 }
 
 // move constructor
@@ -424,6 +438,7 @@ Session &Session::operator=(Session &&other) {
     for(auto& item: this->userMap){
         delete item.second;
     }
+    delete this->activeUser;
 
     // steal other's resources
     this->content = other.content;
@@ -451,14 +466,17 @@ Session::~Session() {
     // delete users
     for(auto& item : userMap){
         delete item.second;
+        item.second = nullptr;
     }
     // delete actions
     for(auto& item : actionsLog){
         delete item;
+        item = nullptr;
     }
     // delete washables
     for(auto& item : content){
         delete item;
+        item = nullptr;
     }
     userMap.clear();
     actionsLog.clear();
