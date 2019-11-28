@@ -6,96 +6,7 @@
 #include "../include/User.h"
 #include <limits>
 
-// constractor
-Session::Session(const std::string &configFilePath) {
-    // read a JSON file
-    using json = nlohmann::json;
-    std::ifstream i(configFilePath);
-    json j;
-    i >> j;
-
-    long id = 0;
-
-    // insert all movies to watchable vector
-    for (auto &element : j["movies"].items()) {
-        std::vector<std::string> tags;
-
-        // get movie tags
-        for (auto &subElement : element.value()["tags"].items()) {
-            tags.push_back(subElement.value());
-        }
-
-        Movie* movie =  new Movie(id, element.value()["name"],element.value()["length"], tags);
-
-        content.push_back(movie);
-        id++;
-    }
-
-    // insert all tv-series to watchable vector
-    for (auto &element : j["tv_series"].items()) {
-        std::vector<std::string> tags;
-
-        // get series tags
-        for (auto &subElement : element.value()["tags"].items()) {
-            tags.push_back(subElement.value());
-        }
-
-        int numOfSeasons = element.value()["seasons"].size();
-        for (int season = 1; season <= numOfSeasons; season++) {
-            int numOfEpisodes = element.value()["seasons"][season-1];
-            for (int episode = 1; episode <= numOfEpisodes ; episode++) {
-                Episode* newEpisode = new Episode(id, element.value()["name"], element.value()["episode_length"],
-                                                  season, episode, tags);
-                content.push_back(newEpisode);
-
-                if(season == numOfSeasons & episode == numOfEpisodes){
-                newEpisode->setNextWatchableId(-1);
-                }
-                else{
-                    newEpisode->setNextWatchableId(id+1);
-                }
-                id++;
-            }
-        }
-    }
-}
-
-// copy construtor
-//Session::Session(const Session &other) {
-//    // copy actions
-//   for (auto act : other.actionsLog) {
-//       actionsLog.push_back(&act->cloneAction());
-//   }
-//   // copy contents
-//    for (auto con : other.content) {
-//        content.push_back(&con->cloneWatchable());
-//    }
-//    // copy userMap
-//    for (auto user : other.userMap) {
-//        //userMap.
-//    }
-//}
-
-// destractor
-Session::~Session() {
-    // delete users
-    for(auto& item : userMap){
-        delete item.second;
-    }
-    // delete actions
-    for(auto& item : actionsLog){
-        delete item;
-    }
-    // delete washables
-    for(auto& item : content){
-        delete item;
-    }
-    userMap.clear();
-    actionsLog.clear();
-    content.clear();
-    activeUser = nullptr;
-}
-
+// methods
 void Session::start() {
     Session("../config1.json");
     std::string def = "default";
@@ -180,8 +91,83 @@ void Session::start() {
         std::cout << "insert a command";
         std::getline(std::cin, command);
     }
+    if(command == "exit"){
+        Exit *action = new Exit();
+        action->act(*this);
+        actionsLog.push_back(action);
+    }
 }
+void Session::printContentList(PrintContentList &action) {
+    int i = 1;
+    for (auto &element : content) {
+        std::cout << std::to_string(i) + ". " + element->toString() + element->printLengthAndTags() << std::endl;
+        i++;
+    }
+}
+void Session::printWatchHistory() {
+    int i = 1;
+    std::cout << "Watch history for " + activeUser->getName() << std::endl;
+    for (auto &content : activeUser->get_history()) {
+        std::cout << std::to_string(i) + ". " + content->toString() << std::endl;
+        i++;
+    }
+}
+void Session::printActionLog(){
+    for (int i = actionsLog.size()-2; i >= 0; i--) {
+        std::cout << (actionsLog.at(i))->toString() << std::endl;
+    }
+}
+void Session::addUserToMap(User* user) {
+    userMap.insert({user->getName(), user});
+}
+std::string Session::duplicateUser(DuplicateUser &action) {
+    std::string oldUserName = action.getOriginUserName();
+    std::string newUserName = action.getNewUserName();
 
+    // if old user exist
+    if (userMap.find(oldUserName) != userMap.end()) {
+
+        // if new user doesn't exist
+        if(userMap.find(newUserName) == userMap.end()){
+            // duplicate
+            addUserToMap(&(userMap.find(oldUserName)->second->cloneUser(newUserName)));
+
+            return "";
+        }
+        else{
+            return "New User Name Is Taken";
+        }
+    }
+    else {
+        return "User To Duplicate Doesn't Exist";
+    }
+}
+std::string Session::watchContentById(Watch &action) {
+    if(action.getContentId() < content.size()) {
+        Watchable* cont = content.at(action.getContentId());
+        std::cout << "Watching " + cont->toString() +"..." << std::endl;
+        activeUser->addToHistory(cont);
+
+        Watchable* suggestion = cont->getNextWatchable(*this);
+        if(suggestion){
+            std::string command;
+            std::cout << "We recommend watching "+suggestion->toString()+", continue watching? [y/n]" << std::endl;
+            std::getline(std::cin, command);
+            if(command=="y" | command == "Y"){
+                Watch* action = new Watch(suggestion->getContentId());
+                actionsLog.push_back(action);
+                action->act(*this);
+            }
+        }
+        else {
+            //TODO:: what if no content
+        }
+        return "";
+    }
+    else {
+        return "Wrong ID";
+    }
+}
 std::string Session::createUser(CreateUser &action) {
     // check if user exist already
     if (userMap.find(action.getUserName()) != userMap.end()) {
@@ -228,95 +214,9 @@ std::string Session::deleteUser(DeleteUser &action) {
         return "User Doesn't Exist";
     }
 }
-void Session::printContentList(PrintContentList &action) {
-    int i = 1;
-    for (auto &element : content) {
-        std::cout << std::to_string(i) + ". " + element->toString() + element->printLengthAndTags() << std::endl;
-        i++;
-    }
-}
-void Session::printWatchHistory() {
-    int i = 1;
-    std::cout << "Watch history for " + activeUser->getName() << std::endl;
-    for (auto &content : activeUser->get_history()) {
-        std::cout << std::to_string(i) + ". " + content->toString() << std::endl;
-        i++;
-    }
-}
-void Session::printActionLog(){
-    for (int i = actionsLog.size()-2; i >= 0; i--) {
-        std::cout << (actionsLog.at(i))->toString() << std::endl;
-    }
-}
-
-std::string Session::duplicateUser(DuplicateUser &action) {
-    std::string oldUserName = action.getOriginUserName();
-    std::string newUserName = action.getNewUserName();
-
-    // if old user exist
-    if (userMap.find(oldUserName) != userMap.end()) {
-
-        // if new user doesn't exist
-        if(userMap.find(newUserName) == userMap.end()){
-            // duplicate
-            addUserToMap(&(userMap.find(oldUserName)->second->cloneUser(newUserName)));
-
-            return "";
-        }
-        else{
-            return "New User Name Is Taken";
-        }
-    }
-    else {
-        return "User To Duplicate Doesn't Exist";
-    }
-}
-
-// check if string is a number
-bool Session::is_number(const std::string& s)
-{
-    return !s.empty() && std::find_if(s.begin(), s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
-}
-
-std::string Session::watchContentById(Watch &action) {
-    if(action.getContentId() < content.size()) {
-        Watchable* cont = content.at(action.getContentId());
-        std::cout << "Watching " + cont->toString() << std::endl;
-        activeUser->addToHistory(cont);
-
-        Watchable* suggestion = cont->getNextWatchable(*this);
-        if(suggestion){
-            std::string command;
-            std::cout << "We recommend watching "+suggestion->toString()+" continue watching? [y/n]" << std::endl;
-            std::getline(std::cin, command);
-            if(command=="y" | command == "Y"){
-                Watch* action = new Watch(suggestion->getContentId());
-                actionsLog.push_back(action);
-                action->act(*this);
-            }
-        }
-        else {
-            //TODO:: what if no content
-        }
-        return "";
-    }
-    else {
-        return "Wrong ID";
-    }
-}
-
-void Session::addUserToMap(User* user) {
-    userMap.insert({user->getName(), user});
-}
-
-User *Session::getActiveUser() {
-    return activeUser;
-}
-
 Watchable * Session::getContentAtIndex(int i) {
     return content[i];
 }
-
 Watchable *Session::getClosestTimeWatchable(double avg, LengthRecommenderUser* user) {
     int closestLength = std::numeric_limits<int>::max();
     //user->get_history();
@@ -333,7 +233,6 @@ Watchable *Session::getClosestTimeWatchable(double avg, LengthRecommenderUser* u
     }
     return content.at(chosen);
 }
-
 Watchable* Session::findcontentByGenre(std::string genre) {
 
     for(auto& watchable : content){
@@ -343,58 +242,108 @@ Watchable* Session::findcontentByGenre(std::string genre) {
     }
     return  nullptr;
 }
+bool Session::is_number(const std::string& s) { // check if string is a number
+    return !s.empty() && std::find_if(s.begin(), s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
+}
+User *Session::getActiveUser() {
+    return activeUser;
+}
+
+// regular constructor
+Session::Session(const std::string &configFilePath) {
+    // read a JSON file
+    using json = nlohmann::json;
+    std::ifstream i(configFilePath);
+    json j;
+    i >> j;
+
+    long id = 0;
+
+    // insert all movies to watchable vector
+    for (auto &element : j["movies"].items()) {
+        std::vector<std::string> tags;
+
+        // get movie tags
+        for (auto &subElement : element.value()["tags"].items()) {
+            tags.push_back(subElement.value());
+        }
+
+        Movie* movie =  new Movie(id, element.value()["name"],element.value()["length"], tags);
+
+        content.push_back(movie);
+        id++;
+    }
+
+    // insert all tv-series to watchable vector
+    for (auto &element : j["tv_series"].items()) {
+        std::vector<std::string> tags;
+
+        // get series tags
+        for (auto &subElement : element.value()["tags"].items()) {
+            tags.push_back(subElement.value());
+        }
+
+        int numOfSeasons = element.value()["seasons"].size();
+        for (int season = 1; season <= numOfSeasons; season++) {
+            int numOfEpisodes = element.value()["seasons"][season-1];
+            for (int episode = 1; episode <= numOfEpisodes ; episode++) {
+                Episode* newEpisode = new Episode(id, element.value()["name"], element.value()["episode_length"],
+                                                  season, episode, tags);
+                content.push_back(newEpisode);
+
+                if(season == numOfSeasons & episode == numOfEpisodes){
+                    newEpisode->setNextWatchableId(-1);
+                }
+                else{
+                    newEpisode->setNextWatchableId(id+1);
+                }
+                id++;
+            }
+        }
+    }
+}
+
+// rule of 5 below
 
 // copy constructor
-Session::Session(const Session &other) {
+Session::Session(const Session &other) { // deep copy without deleting existing other
 
     // deep copy content
-    for(auto& item : other.content){
-        Watchable& watchable = item->cloneWatchable();
-        this->content.push_back(&watchable);
+    for(auto& watchable : other.content){
+        Watchable &newWatchable = watchable->cloneWatchable();
+        this->content.push_back(&newWatchable);
     }
 
     // deep copy actions
-    for(auto& item : other.actionsLog){
-        BaseAction& action = item->cloneAction();
-        this->actionsLog.push_back(&action);
+    for(auto& action : other.actionsLog){
+        BaseAction &newAction = action->cloneAction();
+        this->actionsLog.push_back(&newAction);
     }
+
     // deep copy of users
     for(auto& user : other.userMap){
-        User& newUser = user.second->cloneUser(user.second->getName());
+        User &newUser = user.second->cloneUser(user.second->getName());
         newUser.clearHistory();
-        for(auto& watchable : user.second->get_history()){
-            newUser.addToHistory(this->content.at(watchable->getContentId()));
+
+        // copy user history to the new content vector
+        for(auto& otherWatchable_ptr : user.second->get_history()){
+            long id = otherWatchable_ptr->getContentId();
+            newUser.addToHistory(this->content.at(id));
         }
         this->userMap.insert({newUser.getName(),&newUser});
     }
+
+    // create pointer to the new active user representing the old one
     this->activeUser = (this->userMap.find(other.activeUser->getName()))->second;
 }
 
-// move constructor
-Session::Session(Session &&other) {
-    this->content = other.content;
-    this->actionsLog = other.actionsLog;
-    this->userMap = other.userMap;
-    this->activeUser = other.activeUser;
-
-    for(auto& item: other.content){
-        item = nullptr;
-    }
-    for(auto& item: other.actionsLog){
-        item = nullptr;
-    }
-    for(auto& item: other.userMap){
-        item.second = nullptr;
-        // maybe change first
-    }
-    other.activeUser = nullptr;
-}
-
-Session &Session::operator=(const Session &other) {
+// copy assignment operator
+Session &Session::operator=(const Session &other) { // delete my previous stuff and copy the new stuff
     if( & other == this) {
         return *this;
     }
 
+    // delete the stuff this has
     for(auto& item: this->content){
         delete item;
     }
@@ -408,18 +357,111 @@ Session &Session::operator=(const Session &other) {
     this->content.clear();
     this->actionsLog.clear();
     this->userMap.clear();
+    this->activeUser = nullptr;
 
-    for(auto& watchable : other.content ){
-        this->content.push_back(&watchable->cloneWatchable());
+    // deep copy content
+    for(auto& watchable : other.content){
+        Watchable &newWatchable = watchable->cloneWatchable();
+        this->content.push_back(&newWatchable);
     }
-    for(auto& action : other.actionsLog ){
-        this->actionsLog.push_back(&action->cloneAction());
+
+    // deep copy actions
+    for(auto& action : other.actionsLog){
+        BaseAction &newAction = action->cloneAction();
+        this->actionsLog.push_back(&newAction);
     }
-    for(auto& user : other.userMap ){
+
+    // deep copy of users
+    for(auto& user : other.userMap){
         User &newUser = user.second->cloneUser(user.second->getName());
-        for(auto& watched : user.second->get_history()){
-            newUser.addToHistory(watched);
+        newUser.clearHistory();
+
+        // copy user history to the new content vector
+        for(auto& otherWatchable_ptr : user.second->get_history()){
+            long id = otherWatchable_ptr->getContentId();
+            newUser.addToHistory(this->content.at(id));
         }
-        this->userMap.insert({newUser.getName(),newUser*});
+        this->userMap.insert({newUser.getName(),&newUser});
     }
+    this->activeUser = this->userMap.find(other.activeUser->getName())->second;
+
+}
+
+// move constructor
+Session::Session(Session &&other) { // data will just point to where the other data is pointing to
+
+    // steal other's resources
+    this->content = other.content;
+    this->actionsLog = other.actionsLog;
+    this->userMap = other.userMap;
+    this->activeUser = other.activeUser;
+
+    // delete other's resources (this is just a deletion of pointers, actual values seat somewhere else and now "this" points to them)
+    for(auto& item: other.content){
+        item = nullptr;
+    }
+    for(auto& item: other.actionsLog){
+        item = nullptr;
+    }
+    for(auto& item: other.userMap){
+        item.second = nullptr;
+    }
+    other.activeUser = nullptr;
+}
+
+// move assignment operator
+Session &Session::operator=(Session &&other) {
+   if(&other == this){
+       return *this;
+   }
+    // delete the stuff this has
+    for(auto& item: this->content){
+        delete item;
+    }
+    for(auto& item: this->actionsLog){
+        delete item;
+    }
+    for(auto& item: this->userMap){
+        delete item.second;
+    }
+
+    // steal other's resources
+    this->content = other.content;
+    this->actionsLog = other.actionsLog;
+    this->userMap = other.userMap;
+    this->activeUser = other.activeUser;
+
+    // delete other's resources (this is just a deletion of pointers, actual values seat somewhere else and now "this" points to them)
+    for(auto& item: other.content){
+        item = nullptr;
+    }
+    for(auto& item: other.actionsLog){
+        item = nullptr;
+    }
+    for(auto& item: other.userMap){
+        item.second = nullptr;
+    }
+    other.activeUser = nullptr;
+
+    return *this;
+}
+
+// destructor
+Session::~Session() {
+    // delete users
+    for(auto& item : userMap){
+        delete item.second;
+    }
+    // delete actions
+    for(auto& item : actionsLog){
+        delete item;
+    }
+    // delete washables
+    for(auto& item : content){
+        delete item;
+    }
+    userMap.clear();
+    actionsLog.clear();
+    content.clear();
+    activeUser = nullptr;
 }

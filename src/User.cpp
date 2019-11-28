@@ -84,6 +84,10 @@ std::pair<std::string, int> User::getMaxFromMap(std::map<std::string, int>* map)
     return maxPair;
 }
 
+void User::clearHistory() {
+    history.clear();
+}
+
 //
 // LENGTH type user
 
@@ -126,7 +130,6 @@ Watchable* LengthRecommenderUser::getRecommendation(Session &s) {
 
     return s.getClosestTimeWatchable(average,this);
 }
-
 //
 // RERUN type user
 

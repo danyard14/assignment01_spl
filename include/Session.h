@@ -13,7 +13,7 @@ class Watchable;
 
 class Session{
 public:
-    // constructors
+    // regular constructor
     Session(const std::string &configFilePath);
 
     // copy constructor

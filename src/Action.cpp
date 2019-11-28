@@ -124,14 +124,14 @@ ChangeActiveUser &ChangeActiveUser::cloneAction() {
 //    return *actionClone;
 //}
 
-// delete user methods
-//void DeleteUser::act(Session &sess) {
-//    std::string ret = sess.deleteUser(*this);
-//    if (ret == "")
-//        complete();
-//    else
-//        error(ret);
-//}
+ //delete user methods
+void DeleteUser::act(Session &sess) {
+    std::string ret = sess.deleteUser(*this);
+    if (ret == "")
+        complete();
+    else
+        error(ret);
+}
 std::string DeleteUser::toString() const {
     std::string ret = "DeleteUser ";
     ActionStatus status = getStatus();
@@ -158,12 +158,6 @@ DeleteUser &DeleteUser::cloneAction() {
     action->setErrorMsg(this->getErrorMsg());
     return *action;
 }
-
-// return new Action of type createuser
-//DeleteUser &DeleteUser::cloneAction(){
-//    DeleteUser* actionClone = new DeleteUser(*this);
-//    return *actionClone;
-//}
 
 // duplicate user methods
 void DuplicateUser::act(Session &sess) {
@@ -354,8 +348,31 @@ PrintActionsLog &PrintActionsLog::cloneAction() {
     return *action;
 }
 
-// return new Action of type createuser
-//PrintActionsLog &PrintActionsLog::cloneAction(){
-//    PrintActionsLog* actionClone = new PrintActionsLog(*this);
-//    return *actionClone;
-//}
+Exit &Exit::cloneAction() {
+    Exit* action = new Exit();
+    action->setStatus(this->getStatus());
+    action->setErrorMsg(this->getErrorMsg());
+    return *action;
+}
+
+void Exit::act(Session &sess) {
+    complete();
+}
+
+std::string Exit::toString() const {
+    std::string ret = "Exit ";
+    ActionStatus status = getStatus();
+    if(status == COMPLETED) {
+        ret += "COMPLETED";
+        return ret;
+    }
+    else if (status == ERROR) {
+        ret += "ERROR: ";
+        ret += getErrorMsg();
+        return ret;
+    }
+    else {
+        ret += "PENDING";
+        return ret;
+    }
+}

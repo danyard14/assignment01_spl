@@ -23,11 +23,13 @@ public:
     virtual ~User();
 
     // regular methods
-    virtual void addToHistory(Watchable* watchable);
+
     bool userWatched(Watchable* watchable);
     std::pair <std::string, int> getMaxFromMap(std::map<std::string,int>* genreMap);
+    void clearHistory();
 
     // virtual methods
+    virtual void addToHistory(Watchable* watchable);
     virtual Watchable* getRecommendation(Session& s) = 0;
     virtual User& cloneUser(std::string newName)=0;
 
@@ -60,6 +62,8 @@ public:
     // virtual methods
     virtual Watchable* getRecommendation(Session& s);
     virtual LengthRecommenderUser& cloneUser(std::string newName);
+
+
 protected:
 
 private:
@@ -80,6 +84,7 @@ public:
     // virtual methods
     virtual Watchable* getRecommendation(Session& s);
     virtual RerunRecommenderUser& cloneUser(std::string newName);
+
 
     // getters
     int getLastRecIndex();

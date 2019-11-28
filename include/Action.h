@@ -75,7 +75,7 @@ private:
 class DeleteUser : public BaseAction {
 public:
     DeleteUser(std::string userName);
-    DeleteUser(DeleteUser &other);
+  //  DeleteUser(DeleteUser &other);
     virtual void act(Session & sess);
     virtual DeleteUser& cloneAction();
 
@@ -166,7 +166,6 @@ public:
 
 class Exit : public BaseAction {
 public:
-//    Exit(const Exit &other);
     virtual Exit& cloneAction();
     virtual void act(Session& sess);
     virtual std::string toString() const;
